@@ -14,5 +14,5 @@ func GetAppEnv() string {
 
 // GetPort returns the port (read at call time)
 func GetPort() string {
-	return config.Get("PORT", "8080")
+	return config.Get("PORT", "4000")
 }
