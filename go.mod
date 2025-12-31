@@ -5,7 +5,8 @@ go 1.25.1
 require (
 	github.com/joho/godotenv v1.5.1
 	github.com/romsar/gonertia v1.3.5
-	github.com/velocitykode/velocity v0.0.0-00010101000000-000000000000
+	github.com/velocitykode/velocity v0.0.3
+	github.com/velocitykode/velocity-cli v0.5.1
 )
 
 require (
@@ -17,4 +18,3 @@ require (
 	golang.org/x/crypto v0.42.0 // indirect
 )
 
-replace github.com/velocitykode/velocity => ../velocity
