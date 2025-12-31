@@ -9,20 +9,14 @@ import (
 	"github.com/velocitykode/velocity/pkg/view"
 )
 
-type AuthController struct{}
-
-func NewAuthController() *AuthController {
-	return &AuthController{}
-}
-
-// ShowLoginForm displays the login page
-func (c *AuthController) ShowLoginForm(ctx *router.Context) error {
+// AuthShowLoginForm displays the login page
+func AuthShowLoginForm(ctx *router.Context) error {
 	view.Render(ctx.Response, ctx.Request, "Auth/Login", view.Props{})
 	return nil
 }
 
-// Login handles the login request
-func (c *AuthController) Login(ctx *router.Context) error {
+// AuthLogin handles the login request
+func AuthLogin(ctx *router.Context) error {
 	var formData struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -58,21 +52,21 @@ func (c *AuthController) Login(ctx *router.Context) error {
 	return nil
 }
 
-// Logout handles the logout request
-func (c *AuthController) Logout(ctx *router.Context) error {
+// AuthLogout handles the logout request
+func AuthLogout(ctx *router.Context) error {
 	auth.Logout(ctx.Response, ctx.Request)
 	view.Redirect(ctx.Response, ctx.Request, "/login")
 	return nil
 }
 
-// ShowRegisterForm displays the registration page
-func (c *AuthController) ShowRegisterForm(ctx *router.Context) error {
+// AuthShowRegisterForm displays the registration page
+func AuthShowRegisterForm(ctx *router.Context) error {
 	view.Render(ctx.Response, ctx.Request, "Auth/Register", view.Props{})
 	return nil
 }
 
-// Register handles the registration request
-func (c *AuthController) Register(ctx *router.Context) error {
+// AuthRegister handles the registration request
+func AuthRegister(ctx *router.Context) error {
 	var formData struct {
 		Name                 string `json:"name"`
 		Email                string `json:"email"`

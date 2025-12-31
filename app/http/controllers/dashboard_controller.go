@@ -6,14 +6,8 @@ import (
 	"github.com/velocitykode/velocity/pkg/view"
 )
 
-type DashboardController struct{}
-
-func NewDashboardController() *DashboardController {
-	return &DashboardController{}
-}
-
-// Index displays the dashboard
-func (c *DashboardController) Index(ctx *router.Context) error {
+// Dashboard displays the dashboard
+func Dashboard(ctx *router.Context) error {
 	user := auth.User(ctx.Request)
 
 	// Convert user to map for props

@@ -9,21 +9,17 @@ import (
 
 func init() {
 	router.Register(func(r router.Router) {
-		// Create controller instances
-		authController := controllers.NewAuthController()
-		dashboardController := controllers.NewDashboardController()
-
 		// Guest routes (only accessible when NOT authenticated)
-		r.Get("/login", middleware.GuestMiddleware(authController.ShowLoginForm))
-		r.Post("/login", middleware.GuestMiddleware(authController.Login))
-		r.Get("/register", middleware.GuestMiddleware(authController.ShowRegisterForm))
-		r.Post("/register", middleware.GuestMiddleware(authController.Register))
+		r.Get("/login", middleware.GuestMiddleware(controllers.AuthShowLoginForm))
+		r.Post("/login", middleware.GuestMiddleware(controllers.AuthLogin))
+		r.Get("/register", middleware.GuestMiddleware(controllers.AuthShowRegisterForm))
+		r.Post("/register", middleware.GuestMiddleware(controllers.AuthRegister))
 
 		// Logout route (accessible to authenticated users)
-		r.Post("/logout", authController.Logout)
+		r.Post("/logout", controllers.AuthLogout)
 
 		// Protected routes (require authentication)
-		r.Get("/", middleware.AuthMiddleware(dashboardController.Index))
-		r.Get("/dashboard", middleware.AuthMiddleware(dashboardController.Index))
+		r.Get("/", middleware.AuthMiddleware(controllers.Dashboard))
+		r.Get("/dashboard", middleware.AuthMiddleware(controllers.Dashboard))
 	})
 }
