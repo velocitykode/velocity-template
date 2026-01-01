@@ -6,7 +6,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/romsar/gonertia v1.3.5
 	github.com/velocitykode/velocity v0.1.0
-	github.com/velocitykode/vel v0.7.1
+	github.com/velocitykode/vel v0.7.2
 )
 
 require (
