@@ -17,7 +17,23 @@ This template is used automatically by the Velocity CLI:
 ```bash
 velocity new myapp
 cd myapp
-go run main.go
+./vel serve
+```
+
+## Development Commands
+
+```bash
+# Start development server with hot reload
+./vel serve
+
+# Run database migrations
+./vel migrate
+
+# Generate a new controller
+./vel make:controller User
+
+# Build for production
+./vel build
 ```
 
 ## Documentation

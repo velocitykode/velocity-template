@@ -6,7 +6,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/romsar/gonertia v1.3.5
 	github.com/velocitykode/velocity v0.0.3
-	github.com/velocitykode/velocity-cli v0.7.1
+	github.com/velocitykode/vel v0.0.1
 )
 
 require (
@@ -17,4 +17,3 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.32 // indirect
 	golang.org/x/crypto v0.42.0 // indirect
 )
-

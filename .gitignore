@@ -21,6 +21,7 @@ database/*.sqlite-wal
 *.dll
 *.so
 *.dylib
+vel
 velocity-*
 !velocity-*.go
 
