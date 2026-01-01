@@ -10,16 +10,22 @@ import (
 func init() {
 	router.Register(func(r router.Router) {
 		// Guest routes (only accessible when NOT authenticated)
-		r.Get("/login", middleware.GuestMiddleware(controllers.AuthShowLoginForm))
-		r.Post("/login", middleware.GuestMiddleware(controllers.AuthLogin))
-		r.Get("/register", middleware.GuestMiddleware(controllers.AuthShowRegisterForm))
-		r.Post("/register", middleware.GuestMiddleware(controllers.AuthRegister))
+		r.Group("", func(guest router.Router) {
+			guest.Use(middleware.Guest)
+			guest.Get("/login", controllers.AuthShowLoginForm)
+			guest.Post("/login", controllers.AuthLogin)
+			guest.Get("/register", controllers.AuthShowRegisterForm)
+			guest.Post("/register", controllers.AuthRegister)
+		})
 
-		// Logout route (accessible to authenticated users)
+		// Public routes
 		r.Post("/logout", controllers.AuthLogout)
 
 		// Protected routes (require authentication)
-		r.Get("/", middleware.AuthMiddleware(controllers.Dashboard))
-		r.Get("/dashboard", middleware.AuthMiddleware(controllers.Dashboard))
+		r.Group("", func(auth router.Router) {
+			auth.Use(middleware.Auth)
+			auth.Get("/", controllers.Dashboard)
+			auth.Get("/dashboard", controllers.Dashboard)
+		})
 	})
 }

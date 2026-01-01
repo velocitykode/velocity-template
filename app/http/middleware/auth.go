@@ -7,8 +7,8 @@ import (
 	"github.com/velocitykode/velocity/pkg/router"
 )
 
-// AuthMiddleware redirects to login if not authenticated
-func AuthMiddleware(next router.HandlerFunc) router.HandlerFunc {
+// Auth redirects to login if not authenticated
+func Auth(next router.HandlerFunc) router.HandlerFunc {
 	return func(ctx *router.Context) error {
 		if !auth.Check(ctx.Request) {
 			return ctx.Redirect(http.StatusSeeOther, "/login")
@@ -17,8 +17,8 @@ func AuthMiddleware(next router.HandlerFunc) router.HandlerFunc {
 	}
 }
 
-// GuestMiddleware redirects to dashboard if already authenticated
-func GuestMiddleware(next router.HandlerFunc) router.HandlerFunc {
+// Guest redirects to dashboard if already authenticated
+func Guest(next router.HandlerFunc) router.HandlerFunc {
 	return func(ctx *router.Context) error {
 		if auth.Check(ctx.Request) {
 			return ctx.Redirect(http.StatusSeeOther, "/dashboard")
