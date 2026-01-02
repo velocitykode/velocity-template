@@ -1,21 +1,24 @@
-import * as React from "react"
+import { forwardRef, type InputHTMLAttributes } from 'react';
 
-import { cn } from "@/lib/utils"
-
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
-  return (
-    <input
-      type={type}
-      data-slot="input"
-      className={cn(
-        "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-        "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-        className
-      )}
-      {...props}
-    />
-  )
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  /** Error state */
+  error?: boolean;
 }
 
-export { Input }
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ className = '', error = false, ...props }, ref) => {
+    return (
+      <input
+        ref={ref}
+        className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500 ${
+          error
+            ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20 dark:border-red-800'
+            : 'border-slate-200 focus:border-[#1e3a8a] focus:ring-[#1e3a8a]/20 dark:border-zinc-700 dark:focus:border-blue-500'
+        } ${className}`}
+        {...props}
+      />
+    );
+  }
+);
+
+Input.displayName = 'Input';
