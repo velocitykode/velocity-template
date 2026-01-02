@@ -71,7 +71,7 @@ export default function AuthLayout({
       <div className="flex w-full flex-1 flex-col bg-white dark:bg-zinc-950 lg:w-1/2">
         {/* Mobile header */}
         <div className="flex h-14 items-center justify-between border-b border-slate-100 px-4 lg:hidden dark:border-zinc-800">
-          <AppLogo variant="icon" size="md" href="/" />
+          <AppLogo variant="icon" size="xl" href="/" />
           <Badge variant="brand">v0.1</Badge>
         </div>
 

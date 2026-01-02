@@ -81,8 +81,8 @@ export default function Dashboard() {
   const SidebarContent = () => (
     <>
       {/* Logo */}
-      <div className="flex h-14 items-center justify-between border-b border-slate-100 px-4 dark:border-zinc-800">
-        <AppLogo variant="responsive" size="lg" href="/" />
+      <div className="flex h-16 items-center justify-between border-b border-slate-100 px-4 dark:border-zinc-800">
+        <AppLogo variant="responsive" size="xl" href="/" />
         <div className="flex items-center gap-2">
           <Badge variant="brand">v0.1</Badge>
           <IconButton

@@ -4,7 +4,7 @@ interface AppLogoProps {
   /** Show icon only (mobile) or full logo (desktop) */
   variant?: 'icon' | 'full' | 'responsive';
   /** Logo height class */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   /** Link to homepage */
   href?: string;
   /** Additional classes */
@@ -15,6 +15,7 @@ const sizeClasses = {
   sm: { icon: 'h-6 w-6', full: 'h-8' },
   md: { icon: 'h-8 w-8', full: 'h-16' },
   lg: { icon: 'h-10 w-10', full: 'h-20' },
+  xl: { icon: 'h-12 w-12', full: 'h-24' },
 } as const;
 
 export function AppLogo({
