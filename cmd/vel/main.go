@@ -10,7 +10,7 @@ import (
 	"github.com/velocitykode/vel"
 
 	// Import project packages to register with CLI
-	_ "{{MODULE_NAME}}/bootstrap"
+	_ "{{MODULE_NAME}}/internal/app"
 	_ "{{MODULE_NAME}}/database/migrations"
 )
 

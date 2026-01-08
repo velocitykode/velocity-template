@@ -1,10 +1,9 @@
-package bootstrap
+package app
 
 import (
 	"net/http"
 	"os"
 
-	"{{MODULE_NAME}}/app/http/kernel"
 	"{{MODULE_NAME}}/config"
 
 	"github.com/joho/godotenv"
@@ -31,7 +30,7 @@ func Run() {
 		os.Exit(1)
 	}
 
-	httpKernel := kernel.New()
+	httpKernel := New()
 	httpKernel.Bootstrap()
 
 	port := config.GetPort()

@@ -1,7 +1,7 @@
-package kernel
+package app
 
 import (
-	"{{MODULE_NAME}}/app/http/middleware"
+	"{{MODULE_NAME}}/internal/middleware"
 
 	"github.com/velocitykode/velocity/pkg/csrf"
 	"github.com/velocitykode/velocity/pkg/router"

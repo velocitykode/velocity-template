@@ -1,7 +1,7 @@
-package controllers
+package handlers
 
 import (
-	"{{MODULE_NAME}}/app/models"
+	"{{MODULE_NAME}}/internal/models"
 
 	"github.com/velocitykode/velocity/pkg/auth"
 	"github.com/velocitykode/velocity/pkg/log"

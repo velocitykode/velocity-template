@@ -1,10 +1,10 @@
 package main
 
 import (
-	"{{MODULE_NAME}}/bootstrap"
+	"{{MODULE_NAME}}/internal/app"
 	_ "{{MODULE_NAME}}/routes"
 )
 
 func main() {
-	bootstrap.Run()
+	app.Run()
 }
