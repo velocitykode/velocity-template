@@ -8,7 +8,7 @@ import (
 
 // HTTPKernel handles HTTP request lifecycle
 type HTTPKernel struct {
-	router *router.VelocityRouter
+	router *router.VelocityRouterV2
 }
 
 // New creates a new HTTP kernel
