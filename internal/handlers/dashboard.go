@@ -12,10 +12,10 @@ func Dashboard(ctx *router.Context) error {
 
 	// Convert user to map for props
 	userMap := make(map[string]interface{})
-	if mockUser, ok := user.(*auth.MockUser); ok {
-		userMap["id"] = mockUser.ID
-		userMap["name"] = mockUser.Name
-		userMap["email"] = mockUser.Email
+	if authUser, ok := user.(*auth.AuthUser); ok {
+		userMap["id"] = authUser.ID
+		userMap["name"] = authUser.Name
+		userMap["email"] = authUser.Email
 	}
 
 	view.Render(ctx.Response, ctx.Request, "Dashboard", view.Props{
