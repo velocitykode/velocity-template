@@ -84,7 +84,7 @@ jobs:
 
       - name: Replace module placeholder
         if: steps.check.outputs.skip == 'false'
-        run: sed -i 's|{{MODULE_NAME}}|velocity-starter|g' go.mod package.json
+        run: find . -type f \( -name '*.go' -o -name 'go.mod' -o -name 'package.json' \) -exec sed -i 's|{{MODULE_NAME}}|velocity-starter|g' {} +
 
       - name: Build Go binary
         if: steps.check.outputs.skip == 'false'
