@@ -9,6 +9,9 @@ import (
 
 func init() {
 	router.Register(func(r router.Router) {
+		// Health check
+		r.Get("/health", handlers.Health)
+
 		// Guest routes (only accessible when NOT authenticated)
 		r.Group("", func(guest router.Router) {
 			guest.Get("/login", handlers.AuthShowLoginForm)
