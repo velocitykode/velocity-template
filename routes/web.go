@@ -4,29 +4,26 @@ import (
 	"{{MODULE_NAME}}/internal/handlers"
 	"{{MODULE_NAME}}/internal/middleware"
 
+	"github.com/velocitykode/velocity"
 	"github.com/velocitykode/velocity/pkg/router"
 )
 
-func init() {
-	router.Register(func(r router.Router) {
-		// Health check
-		r.Get("/health", handlers.Health)
+func Register(v *velocity.App) {
+	r := v.Router
 
-		// Guest routes (only accessible when NOT authenticated)
-		r.Group("", func(guest router.Router) {
-			guest.Get("/login", handlers.AuthShowLoginForm)
-			guest.Post("/login", handlers.AuthLogin)
-			guest.Get("/register", handlers.AuthShowRegisterForm)
-			guest.Post("/register", handlers.AuthRegister)
-		}).Use(middleware.Guest)
+	r.Get("/health", handlers.Health)
 
-		// Public routes
-		r.Post("/logout", handlers.AuthLogout)
+	r.Group("", func(guest router.Router) {
+		guest.Get("/login", handlers.AuthShowLoginForm)
+		guest.Post("/login", handlers.AuthLogin)
+		guest.Get("/register", handlers.AuthShowRegisterForm)
+		guest.Post("/register", handlers.AuthRegister)
+	}).Use(middleware.Guest)
 
-		// Protected routes (require authentication)
-		r.Group("", func(auth router.Router) {
-			auth.Get("/", handlers.Dashboard)
-			auth.Get("/dashboard", handlers.Dashboard)
-		}).Use(middleware.Auth)
-	})
+	r.Post("/logout", handlers.AuthLogout)
+
+	r.Group("", func(auth router.Router) {
+		auth.Get("/", handlers.Dashboard)
+		auth.Get("/dashboard", handlers.Dashboard)
+	}).Use(middleware.Auth)
 }
