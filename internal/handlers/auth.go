@@ -145,7 +145,7 @@ func AuthRegister(ctx *router.Context) error {
 	}
 
 	// Create new user
-	user, err := models.User{}.Create(ctx.DB(), map[string]any{
+	user, err := models.User{}.Create(map[string]any{
 		"name":     formData.Name,
 		"email":    formData.Email,
 		"password": hashedPassword,
