@@ -24,7 +24,7 @@ func CSRFTokenMiddleware(next router.HandlerFunc) router.HandlerFunc {
 		sessionCookie, err := c.Request.Cookie(sessionName)
 		if err == nil {
 			// Get or generate CSRF token for this session
-			token, err := csrf.GetGlobalToken(sessionCookie.Value)
+			token, err := csrf.FromContext(c).GetToken(sessionCookie.Value)
 			if err == nil && token != "" {
 				// Set token in template data for the meta tag
 				ctx = gonertia.SetTemplateDatum(ctx, "csrfToken", token)

@@ -32,7 +32,7 @@ func Bootstrap(v *velocity.App) error {
 	}
 
 	// 4. Register event listeners (app-specific)
-	initEvents()
+	initEvents(v)
 
 	// 5. Apply middleware to the router
 	bootstrapMiddleware(v)
@@ -67,7 +67,6 @@ func bootstrapCSRF(v *velocity.App) {
 	csrfConfig.ExcludePaths = []string{"/api/webhooks/*", "/health"}
 
 	v.CSRF = csrf.New(csrfConfig)
-	csrf.SetGlobalCSRF(v.CSRF)
 }
 
 func bootstrapView(v *velocity.App) error {
@@ -85,17 +84,17 @@ func bootstrapView(v *velocity.App) error {
 	}
 
 	v.View = engine
-	view.SetGlobalEngine(engine)
 
 	sessionName := os.Getenv("SESSION_NAME")
 	if sessionName == "" {
 		sessionName = "velocity_session"
 	}
 
-	view.SetSharePropsFunc(func(r *http.Request) (view.Props, error) {
+	csrfInstance := v.CSRF.(*csrf.CSRF)
+	engine.SetSharePropsFunc(func(r *http.Request) (view.Props, error) {
 		props := view.Props{}
 		if cookie, err := r.Cookie(sessionName); err == nil {
-			if token, err := csrf.GetGlobalToken(cookie.Value); err == nil && token != "" {
+			if token, err := csrfInstance.GetToken(cookie.Value); err == nil && token != "" {
 				props["csrf_token"] = token
 			}
 		}
@@ -106,7 +105,7 @@ func bootstrapView(v *velocity.App) error {
 }
 
 func bootstrapMiddleware(v *velocity.App) {
-	stacks := GetMiddlewareStacks()
+	stacks := GetMiddlewareStacks(v)
 
 	for _, mw := range stacks.Global {
 		v.Router.Use(mw)
