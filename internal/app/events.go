@@ -2,9 +2,9 @@ package app
 
 import (
 	"github.com/velocitykode/velocity"
-	"github.com/velocitykode/velocity/pkg/cache"
-	"github.com/velocitykode/velocity/pkg/orm"
-	"github.com/velocitykode/velocity/pkg/router"
+	"github.com/velocitykode/velocity/cache"
+	"github.com/velocitykode/velocity/orm"
+	"github.com/velocitykode/velocity/router"
 )
 
 // listenerFunc adapts a plain function to the events.Listener interface.

@@ -5,7 +5,7 @@ import (
 	"{{MODULE_NAME}}/internal/middleware"
 
 	"github.com/velocitykode/velocity"
-	"github.com/velocitykode/velocity/pkg/router"
+	"github.com/velocitykode/velocity/router"
 )
 
 func Register(v *velocity.App) {
