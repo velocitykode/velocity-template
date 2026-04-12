@@ -8,7 +8,6 @@ export default defineConfig({
     plugins: [
         inertia({
             pages: 'resources/js/pages',
-            ssr: false,
         }),
         react(),
         tailwindcss(),
