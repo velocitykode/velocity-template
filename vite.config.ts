@@ -1,9 +1,17 @@
+import inertia from '@inertiajs/vite';
 import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-    plugins: [tailwindcss()],
+    plugins: [
+        inertia({
+            pages: 'resources/js/pages',
+        }),
+        react(),
+        tailwindcss(),
+    ],
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './resources/js'),
@@ -20,9 +28,5 @@ export default defineConfig({
         port: 5173,
         strictPort: true,
         host: 'localhost',
-    },
-    esbuild: {
-        jsx: 'automatic',
-        jsxDev: false,
     },
 });
