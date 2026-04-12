@@ -3,6 +3,8 @@ package app
 import (
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"{{MODULE_NAME}}/config"
 
@@ -43,6 +45,22 @@ func Bootstrap(v *velocity.App) error {
 	return nil
 }
 
+func envOrDefault(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
+func envDurationOrDefault(key string, fallback time.Duration) time.Duration {
+	if v := os.Getenv(key); v != "" {
+		if d, err := time.ParseDuration(v); err == nil {
+			return d
+		}
+	}
+	return fallback
+}
+
 func bootstrapAuth(v *velocity.App) error {
 	authManager := v.Auth.(*auth.Manager)
 	sessionConfig := auth.NewSessionConfigFromEnv()
@@ -76,10 +94,22 @@ func bootstrapView(v *velocity.App) error {
 		return err
 	}
 
-	engine, err := view.NewEngine(view.Config{
+	viewConfig := view.Config{
 		RootTemplate: template,
 		Version:      config.GetViewVersion(),
-	})
+		SSREnabled:   os.Getenv("INERTIA_SSR_ENABLED") == "true",
+		SSRURL:       envOrDefault("INERTIA_SSR_URL", "http://127.0.0.1:13714"),
+		SSRTimeout:   envDurationOrDefault("INERTIA_SSR_TIMEOUT", 3*time.Second),
+	}
+	if except := os.Getenv("INERTIA_SSR_EXCEPT"); except != "" {
+		for _, p := range strings.Split(except, ",") {
+			if p = strings.TrimSpace(p); p != "" {
+				viewConfig.SSRExcept = append(viewConfig.SSRExcept, p)
+			}
+		}
+	}
+
+	engine, err := view.NewEngine(viewConfig)
 	if err != nil {
 		return err
 	}

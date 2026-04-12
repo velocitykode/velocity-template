@@ -3,9 +3,12 @@ import '../css/app.css';
 import { createInertiaApp, http, router } from '@inertiajs/react';
 import { initializeTheme } from './hooks/use-appearance';
 
-let csrfToken: string | null = readInitialCsrfToken();
+let csrfToken: string | null = null;
 
 http.onRequest((config) => {
+    if (!csrfToken) {
+        csrfToken = readInitialCsrfToken();
+    }
     if (csrfToken) {
         config.headers = { ...config.headers, 'X-CSRF-Token': csrfToken };
     }
@@ -32,6 +35,9 @@ createInertiaApp({
 initializeTheme();
 
 function readInitialCsrfToken(): string | null {
+    if (typeof document === 'undefined') {
+        return null;
+    }
     const el = document.getElementById('app');
     const raw = el?.dataset.page;
     if (!raw) return null;

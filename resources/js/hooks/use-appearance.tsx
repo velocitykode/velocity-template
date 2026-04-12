@@ -20,6 +20,10 @@ const setCookie = (name: string, value: string, days = 365) => {
 };
 
 const applyTheme = (appearance: Appearance) => {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
     const isDark =
         appearance === 'dark' || (appearance === 'system' && prefersDark());
 
@@ -41,12 +45,15 @@ const handleSystemThemeChange = () => {
 };
 
 export function initializeTheme() {
+    if (typeof localStorage === 'undefined') {
+        return;
+    }
+
     const savedAppearance =
         (localStorage.getItem('appearance') as Appearance) || 'system';
 
     applyTheme(savedAppearance);
 
-    // Add the event listener for system theme changes...
     mediaQuery()?.addEventListener('change', handleSystemThemeChange);
 }
 

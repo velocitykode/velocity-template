@@ -29,13 +29,13 @@ func GetMiddlewareStacks(v *velocity.App) *MiddlewareStacks {
 // These run before any route-specific or group-specific middleware
 func globalMiddleware() []router.MiddlewareFunc {
 	return []router.MiddlewareFunc{
-		middleware.LoggingMiddleware,                      // Log all requests
-		middleware.TrustProxiesMiddleware,                 // Handle X-Forwarded-* headers
-		middleware.CORSMiddleware,                         // Handle CORS preflight and headers
+		middleware.LoggingMiddleware,                          // Log all requests
+		middleware.TrustProxiesMiddleware,                     // Handle X-Forwarded-* headers
+		middleware.CORSMiddleware,                             // Handle CORS preflight and headers
 		middleware.PreventRequestsDuringMaintenanceMiddleware, // Return 503 when in maintenance mode
-		middleware.ValidatePostSizeMiddleware(10 << 20),   // Reject requests > 10MB
-		middleware.TrimStringsMiddleware,                  // Trim whitespace from string inputs
-		middleware.ConvertEmptyStringsToNullMiddleware,    // Convert "" to nil for cleaner handling
+		middleware.ValidatePostSizeMiddleware(10 << 20),       // Reject requests > 10MB
+		middleware.TrimStringsMiddleware,                      // Trim whitespace from string inputs
+		middleware.ConvertEmptyStringsToNullMiddleware,        // Convert "" to nil for cleaner handling
 	}
 }
 
@@ -46,10 +46,10 @@ func webMiddleware(v *velocity.App) []router.MiddlewareFunc {
 	viewEngine := v.View.(*view.Engine)
 
 	return []router.MiddlewareFunc{
-		middleware.SessionMiddleware,       // Create session cookie (must be before CSRF)
-		middleware.CSRFTokenMiddleware,     // Set CSRF token in template data
-		csrfInstance.RouterMiddleware(),    // CSRF protection (validates token)
-		viewEngine.Middleware(),            // Inertia middleware - handles X-Inertia headers, version, etc.
+		middleware.SessionMiddleware,    // Create session cookie (must be before CSRF)
+		middleware.CSRFTokenMiddleware,  // Set CSRF token in template data
+		csrfInstance.RouterMiddleware(), // CSRF protection (validates token)
+		viewEngine.Middleware(),         // Inertia middleware - handles X-Inertia headers, version, etc.
 	}
 }
 
