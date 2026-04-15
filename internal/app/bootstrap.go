@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"strings"
@@ -16,32 +17,41 @@ import (
 	"github.com/velocitykode/velocity/view"
 )
 
-// Bootstrap configures app-specific services on the Velocity app instance.
-// Core services (crypto, ORM, logger, cache, events, queue, storage) are
-// already initialized by velocity.Default().
-func Bootstrap(v *velocity.App) error {
-	// 1. Register auth guards (app-specific: session guard with user model)
-	if err := bootstrapAuth(v); err != nil {
+// Configure registers the app's service providers. main.go passes this
+// to v.Providers(...) — the framework calls Register on every provider
+// during bootstrap, then Boot once Register has finished for all of them.
+func Configure(reg *velocity.ProviderRegistry) {
+	reg.Add(&AppProvider{})
+}
+
+// AppProvider wires CSRF, auth guards, and the view engine for this
+// application. CSRF is built in Register so it's available to the view
+// engine's shared-props closure that's set up in Boot.
+type AppProvider struct{}
+
+// Register binds the CSRF instance — runs before any provider's Boot.
+func (p *AppProvider) Register(s *velocity.Services) error {
+	sessionName := envOrDefault("SESSION_NAME", "velocity_session")
+
+	csrfConfig := csrf.DefaultConfig()
+	csrfConfig.Store = stores.NewSessionStore()
+	csrfConfig.SessionCookieName = sessionName
+	csrfConfig.ExcludePaths = []string{"/api/webhooks/*", "/health"}
+
+	s.CSRF = csrf.New(csrfConfig)
+	return nil
+}
+
+// Boot wires auth and view — runs after every provider's Register, so
+// services bound by other providers are available here.
+func (p *AppProvider) Boot(s *velocity.Services) error {
+	if err := bootstrapAuth(s); err != nil {
 		return err
 	}
+	return bootstrapView(s)
+}
 
-	// 2. Configure CSRF with session store (app-specific)
-	bootstrapCSRF(v)
-
-	// 3. Configure view engine with template and shared props (app-specific)
-	if err := bootstrapView(v); err != nil {
-		return err
-	}
-
-	// 4. Register event listeners (app-specific)
-	initEvents(v)
-
-	// 5. Apply middleware to the router
-	bootstrapMiddleware(v)
-
-	// 6. Serve static files
-	v.Router.Static("public")
-
+func (p *AppProvider) Shutdown(_ context.Context) error {
 	return nil
 }
 
@@ -61,11 +71,11 @@ func envDurationOrDefault(key string, fallback time.Duration) time.Duration {
 	return fallback
 }
 
-func bootstrapAuth(v *velocity.App) error {
-	authManager := v.Auth.(*auth.Manager)
+func bootstrapAuth(s *velocity.Services) error {
+	authManager := s.Auth.(*auth.Manager)
 	sessionConfig := auth.NewSessionConfigFromEnv()
-	provider := auth.NewORMUserProvider(v.DB.DB(), config.GetAuthModel(), authManager.GetHasher())
-	sessionGuard, err := guards.NewSessionGuard(provider, sessionConfig, v.Crypto)
+	provider := auth.NewORMUserProvider(s.DB.DB(), config.GetAuthModel(), authManager.GetHasher())
+	sessionGuard, err := guards.NewSessionGuard(provider, sessionConfig, s.Crypto)
 	if err != nil {
 		return err
 	}
@@ -74,21 +84,7 @@ func bootstrapAuth(v *velocity.App) error {
 	return nil
 }
 
-func bootstrapCSRF(v *velocity.App) {
-	sessionName := os.Getenv("SESSION_NAME")
-	if sessionName == "" {
-		sessionName = "velocity_session"
-	}
-
-	csrfConfig := csrf.DefaultConfig()
-	csrfConfig.Store = stores.NewSessionStore()
-	csrfConfig.SessionCookieName = sessionName
-	csrfConfig.ExcludePaths = []string{"/api/webhooks/*", "/health"}
-
-	v.CSRF = csrf.New(csrfConfig)
-}
-
-func bootstrapView(v *velocity.App) error {
+func bootstrapView(s *velocity.Services) error {
 	template, err := view.LoadTemplateFromFile(config.GetViewTemplate())
 	if err != nil {
 		return err
@@ -114,14 +110,11 @@ func bootstrapView(v *velocity.App) error {
 		return err
 	}
 
-	v.View = engine
+	s.View = engine
 
-	sessionName := os.Getenv("SESSION_NAME")
-	if sessionName == "" {
-		sessionName = "velocity_session"
-	}
+	sessionName := envOrDefault("SESSION_NAME", "velocity_session")
+	csrfInstance := s.CSRF.(*csrf.CSRF)
 
-	csrfInstance := v.CSRF.(*csrf.CSRF)
 	engine.SetSharePropsFunc(func(r *http.Request) (view.Props, error) {
 		props := view.Props{}
 		if cookie, err := r.Cookie(sessionName); err == nil {
@@ -133,15 +126,4 @@ func bootstrapView(v *velocity.App) error {
 	})
 
 	return nil
-}
-
-func bootstrapMiddleware(v *velocity.App) {
-	stacks := GetMiddlewareStacks(v)
-
-	for _, mw := range stacks.Global {
-		v.Router.Use(mw)
-	}
-	for _, mw := range stacks.Web {
-		v.Router.Use(mw)
-	}
 }

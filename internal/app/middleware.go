@@ -5,60 +5,43 @@ import (
 
 	"github.com/velocitykode/velocity"
 	"github.com/velocitykode/velocity/csrf"
-	"github.com/velocitykode/velocity/router"
 	"github.com/velocitykode/velocity/view"
 )
 
-// MiddlewareStacks defines all middleware stacks for the application
-type MiddlewareStacks struct {
-	Global []router.MiddlewareFunc
-	Web    []router.MiddlewareFunc
-	API    []router.MiddlewareFunc
-}
-
-// GetMiddlewareStacks returns configured middleware stacks
-func GetMiddlewareStacks(v *velocity.App) *MiddlewareStacks {
-	return &MiddlewareStacks{
-		Global: globalMiddleware(),
-		Web:    webMiddleware(v),
-		API:    apiMiddleware(),
-	}
-}
-
-// globalMiddleware returns middleware that runs for ALL requests
-// These run before any route-specific or group-specific middleware
-func globalMiddleware() []router.MiddlewareFunc {
-	return []router.MiddlewareFunc{
+// Middleware configures the application's middleware stacks.
+//
+// The framework calls this once during bootstrap with a *MiddlewareStack
+// that splits middleware into three scopes:
+//
+//   - Global: runs on every request
+//   - Web:    runs on routes inside r.Web(...)
+//   - API:    runs on routes inside r.API(prefix, ...)
+//
+// CSRF and the view engine instances live on Services — they were
+// registered by AppProvider.Register / Boot.
+func Middleware(m *velocity.MiddlewareStack) {
+	m.Global(
 		middleware.LoggingMiddleware,                          // Log all requests
 		middleware.TrustProxiesMiddleware,                     // Handle X-Forwarded-* headers
-		middleware.CORSMiddleware,                             // Handle CORS preflight and headers
-		middleware.PreventRequestsDuringMaintenanceMiddleware, // Return 503 when in maintenance mode
-		middleware.ValidatePostSizeMiddleware(10 << 20),       // Reject requests > 10MB
+		middleware.CORSMiddleware,                             // CORS preflight + headers
+		middleware.PreventRequestsDuringMaintenanceMiddleware, // 503 when in maintenance mode
+		middleware.ValidatePostSizeMiddleware(10<<20),         // Reject requests > 10MB
 		middleware.TrimStringsMiddleware,                      // Trim whitespace from string inputs
-		middleware.ConvertEmptyStringsToNullMiddleware,        // Convert "" to nil for cleaner handling
-	}
-}
+		middleware.ConvertEmptyStringsToNullMiddleware,        // Convert "" to nil
+	)
 
-// webMiddleware returns middleware for browser/web requests (Inertia, HTML)
-// These run only for routes in the "web" group
-func webMiddleware(v *velocity.App) []router.MiddlewareFunc {
-	csrfInstance := v.CSRF.(*csrf.CSRF)
-	viewEngine := v.View.(*view.Engine)
+	s := m.Services()
+	csrfInstance := s.CSRF.(*csrf.CSRF)
+	viewEngine := s.View.(*view.Engine)
 
-	return []router.MiddlewareFunc{
-		middleware.SessionMiddleware,    // Create session cookie (must be before CSRF)
-		middleware.CSRFTokenMiddleware,  // Set CSRF token in template data
-		csrfInstance.RouterMiddleware(), // CSRF protection (validates token)
-		viewEngine.Middleware(),         // Inertia middleware - handles X-Inertia headers, version, etc.
-	}
-}
+	m.Web(
+		middleware.SessionMiddleware,    // Session cookie (must run before CSRF)
+		middleware.CSRFTokenMiddleware,  // Inject CSRF token into template data
+		csrfInstance.RouterMiddleware(), // Validate CSRF token on unsafe methods
+		viewEngine.Middleware(),         // Inertia version + X-Inertia headers
+	)
 
-// apiMiddleware returns middleware for API requests (JSON APIs)
-// These run only for routes in the "api" group
-func apiMiddleware() []router.MiddlewareFunc {
-	return []router.MiddlewareFunc{
-		middleware.EnsureJSONMiddleware, // Ensure response is JSON formatted
-		// Throttle - Rate limiting (requires framework support)
-		// SubstituteBindings - Route model bindings (requires framework support)
-	}
+	m.API(
+		middleware.EnsureJSONMiddleware, // Force JSON content-type on responses
+	)
 }
