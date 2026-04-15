@@ -43,7 +43,7 @@ export default function AuthLayout({
             </span>
           </h2>
           <p className="mt-6 max-w-md text-lg text-slate-400">
-            The modern web framework that combines Laravel&apos;s elegance with Go&apos;s raw performance.
+            A modern, batteries-included web framework that lets you ship in days, not weeks.
           </p>
 
           {/* Features */}

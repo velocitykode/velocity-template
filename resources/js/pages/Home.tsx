@@ -4,7 +4,7 @@ export default function Home({ message }: { message: string }) {
       <div className="max-w-2xl w-full bg-white rounded-lg shadow-lg p-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Velocity</h1>
         <p className="text-lg text-gray-600 mb-6">
-          Velocity brings Laravel's developer experience to Go without sacrificing performance.
+          The full-stack web framework for Go - batteries included, fast by default, ready to ship.
         </p>
         <div className="space-y-4">
           <div className="flex items-start gap-3">
