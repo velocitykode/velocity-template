@@ -59,8 +59,15 @@ func envDurationOrDefault(key string, fallback time.Duration) time.Duration {
 }
 
 func bootstrapView(s *velocity.Services) error {
+	// view.Config.RootTemplate takes the HTML content string, not a path.
+	// Read the file ourselves so bond can parse + validate it.
+	templateBytes, err := os.ReadFile(config.GetViewTemplate())
+	if err != nil {
+		return err
+	}
+
 	viewConfig := view.Config{
-		RootTemplate: config.GetViewTemplate(),
+		RootTemplate: string(templateBytes),
 		Version:      config.GetViewVersion(),
 		SSREnabled:   os.Getenv("INERTIA_SSR_ENABLED") == "true",
 		SSRURL:       envOrDefault("INERTIA_SSR_URL", "http://127.0.0.1:13714"),
