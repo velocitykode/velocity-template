@@ -43,6 +43,11 @@
     --color-error: #c0392b;
     --color-error-soft: #f3d9d4;
 
+    /* Phosphor - reserved for the logo's cursor character. Only place
+       color appears outside semantic signals (success/error/warning).
+       Deep green on light paper, bright phosphor on dark terminal. */
+    --color-phosphor: #0a7a3c;
+
     /* Brand panel palette - dark surface used in auth-layout left column.
        Stays dark across both themes for a consistent brand silhouette,
        but we do shift slightly in dark mode (see .dark override). */
@@ -69,6 +74,7 @@
     --color-accent-fg: #0a0a0a;
     --color-error: #ff6b5a;
     --color-error-soft: #3a1a16;
+    --color-phosphor: #6effa3;
 
     --color-panel: #141414;
     --color-panel-surface: #1c1c1c;
@@ -150,6 +156,11 @@
         font-weight: 500;
         animation: ascii-spin 0.6s linear infinite;
     }
+
+    /* Blinking cursor character - used by the AppLogo's trailing _ */
+    .cursor-blink {
+        animation: cursor-blink 1.05s step-end infinite;
+    }
 }
 
 @keyframes ascii-spin {
@@ -157,4 +168,8 @@
     25%  { content: '/'; }
     50%  { content: '-'; }
     75%  { content: '\\'; }
+}
+
+@keyframes cursor-blink {
+    50%, 100% { opacity: 0; }
 }
