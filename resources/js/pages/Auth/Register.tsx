@@ -1,7 +1,7 @@
 import { Button, FormField, Input } from '@/components/ui';
 import { usePageTitle } from '@/hooks/use-page-title';
 import AuthLayout from '@/layouts/auth-layout';
-import { Link, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 
@@ -35,8 +35,14 @@ export default function Register({ errors = {}, old = {} }: RegisterProps) {
   };
 
   return (
-    <AuthLayout title="Create account" description="Get started with Velocity in seconds">
-      <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-5">
+    <AuthLayout
+      title="Create account"
+      description="Get started with Velocity in seconds — no credit card, no ceremony."
+      switchPrompt="Already have an account?"
+      switchHref="/login"
+      switchLabel="Sign in"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
         <FormField label="Name" htmlFor="name" error={errors.name}>
           <Input
             id="name"
@@ -79,8 +85,9 @@ export default function Register({ errors = {}, old = {} }: RegisterProps) {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-fg transition-colors"
               tabIndex={-1}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -88,7 +95,7 @@ export default function Register({ errors = {}, old = {} }: RegisterProps) {
         </FormField>
 
         <FormField
-          label="Confirm Password"
+          label="Confirm password"
           htmlFor="password_confirmation"
           error={errors.password_confirmation}
         >
@@ -109,16 +116,10 @@ export default function Register({ errors = {}, old = {} }: RegisterProps) {
           size="lg"
           loading={processing}
           iconRight={ArrowRight}
+          className="mt-2"
         >
           Create account
         </Button>
-
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-          Already have an account?{' '}
-          <Link href="/login" className="font-medium text-[#1e3a8a] hover:underline dark:text-blue-400">
-            Sign in
-          </Link>
-        </p>
       </form>
     </AuthLayout>
   );

@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 
 interface FormFieldProps {
-  /** Field label */
+  /** Field label (rendered as floating caption above the input) */
   label?: string;
   /** Error message */
   error?: string;
@@ -31,18 +31,22 @@ export function FormField({
       {label && (
         <label
           htmlFor={htmlFor}
-          className="block text-sm font-medium text-slate-700 dark:text-zinc-300"
+          className="caption-mono-upper block text-muted"
         >
           {label}
-          {required && <span className="ml-1 text-[#dc2626]">*</span>}
+          {required && <span className="ml-1 text-error">*</span>}
         </label>
       )}
       {children}
       {error && (
-        <p className="text-xs text-[#dc2626] dark:text-red-400">{error}</p>
+        <p className="caption-mono text-error">
+          {error}
+        </p>
       )}
       {hint && !error && (
-        <p className="text-xs text-slate-500 dark:text-zinc-500">{hint}</p>
+        <p className="caption-mono text-dim">
+          {hint}
+        </p>
       )}
     </div>
   );
