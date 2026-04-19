@@ -10,9 +10,9 @@ interface UserAvatarProps {
 }
 
 const sizeClasses = {
-  sm: 'h-8 w-8 text-xs',
-  md: 'h-10 w-10 text-sm',
-  lg: 'h-12 w-12 text-base',
+  sm: 'h-8 w-8 text-[11px]',
+  md: 'h-10 w-10 text-xs',
+  lg: 'h-12 w-12 text-sm',
 } as const;
 
 function getInitials(name?: string): string {
@@ -30,14 +30,14 @@ export function UserAvatar({ name, size = 'md', src, className = '' }: UserAvata
       <img
         src={src}
         alt={name || 'User avatar'}
-        className={`rounded-full object-cover ${sizeClasses[size]} ${className}`}
+        className={`rounded-none object-cover ${sizeClasses[size]} ${className}`}
       />
     );
   }
 
   return (
     <div
-      className={`flex items-center justify-center rounded-full bg-[#1e3a8a] font-bold text-white ${sizeClasses[size]} ${className}`}
+      className={`flex items-center justify-center border border-border-strong bg-surface font-mono tracking-widest text-fg ${sizeClasses[size]} ${className}`}
     >
       {initials}
     </div>

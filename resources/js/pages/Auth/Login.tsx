@@ -38,14 +38,20 @@ export default function Login({
   };
 
   return (
-    <AuthLayout title="Welcome back" description="Sign in to your account to continue">
+    <AuthLayout
+      title="Sign in"
+      description="Welcome back - manage your application and continue where you left off."
+      switchPrompt="New to Velocity?"
+      switchHref="/register"
+      switchLabel="Create an account"
+    >
       {status && (
-        <div className="mb-4 lg:mb-6 rounded-xl bg-emerald-50 p-3 lg:p-4 text-sm text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400">
-          {status}
+        <div className="mb-6 border border-emerald-600/40 bg-emerald-600/10 px-4 py-3">
+          <p className="caption-mono text-emerald-700 dark:text-emerald-400">{status}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <FormField label="Email" htmlFor="email" error={errors.email}>
           <Input
             id="email"
@@ -60,11 +66,7 @@ export default function Login({
           />
         </FormField>
 
-        <FormField
-          label="Password"
-          htmlFor="password"
-          error={errors.password}
-        >
+        <FormField label="Password" htmlFor="password" error={errors.password}>
           <div className="relative">
             <Input
               id="password"
@@ -79,31 +81,35 @@ export default function Login({
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-fg transition-colors"
               tabIndex={-1}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
+        </FormField>
+
+        <div className="flex items-center justify-between">
+          <label className="flex cursor-pointer items-center gap-2.5">
+            <input
+              type="checkbox"
+              checked={data.remember}
+              onChange={(e) => setData('remember', e.target.checked)}
+              className="h-4 w-4 rounded-none border-border-strong bg-surface accent-fg"
+            />
+            <span className="caption-mono text-muted">Remember me</span>
+          </label>
+
           {canResetPassword && (
             <Link
               href="/password/request"
-              className="mt-1.5 block text-right text-xs text-[#1e3a8a] hover:underline dark:text-blue-400"
+              className="link-underline caption-mono text-muted"
             >
-              Forgot password?
+              Trouble logging in?
             </Link>
           )}
-        </FormField>
-
-        <label className="flex cursor-pointer items-center gap-2.5">
-          <input
-            type="checkbox"
-            checked={data.remember}
-            onChange={(e) => setData('remember', e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 text-[#1e3a8a] focus:ring-[#1e3a8a]/20 dark:border-zinc-600 dark:bg-zinc-800"
-          />
-          <span className="text-sm text-slate-600 dark:text-slate-400">Remember me</span>
-        </label>
+        </div>
 
         <Button
           type="submit"
@@ -111,16 +117,10 @@ export default function Login({
           size="lg"
           loading={processing}
           iconRight={ArrowRight}
+          className="mt-2"
         >
           Sign in
         </Button>
-
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-          New to Velocity?{' '}
-          <Link href="/register" className="font-medium text-[#1e3a8a] hover:underline dark:text-blue-400">
-            Create an account
-          </Link>
-        </p>
       </form>
     </AuthLayout>
   );

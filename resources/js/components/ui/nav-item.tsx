@@ -27,10 +27,11 @@ export function NavItem({
   onClick,
   className = '',
 }: NavItemProps) {
-  const baseClasses = 'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a8a]/30 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900';
+  const baseClasses =
+    'group flex items-center gap-3 rounded-none px-3 py-2.5 text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg';
   const activeClasses = active
-    ? 'bg-[#1e3a8a] text-white shadow-sm'
-    : 'text-slate-600 hover:bg-slate-100 dark:text-zinc-400 dark:hover:bg-zinc-800';
+    ? 'border-l-2 border-accent pl-[10px] text-fg font-medium'
+    : 'border-l-2 border-transparent pl-[10px] text-muted hover:text-fg';
 
   if (external) {
     return (
@@ -41,9 +42,9 @@ export function NavItem({
         className={`${baseClasses} ${activeClasses} ${className}`}
         onClick={onClick}
       >
-        <Icon className="h-5 w-5" />
-        {name}
-        <ExternalLink className="ml-auto h-4 w-4 opacity-50" />
+        <Icon className="h-4 w-4" />
+        <span className="flex-1 truncate">{name}</span>
+        <ExternalLink className="h-3.5 w-3.5 opacity-50" />
       </a>
     );
   }
@@ -54,8 +55,8 @@ export function NavItem({
       className={`${baseClasses} ${activeClasses} ${className}`}
       onClick={onClick}
     >
-      <Icon className="h-5 w-5" />
-      {name}
+      <Icon className="h-4 w-4" />
+      <span className="flex-1 truncate">{name}</span>
     </Link>
   );
 }

@@ -9,13 +9,15 @@ interface AppLogoProps {
   href?: string;
   /** Additional classes */
   className?: string;
+  /** Force the dark-surface logo (use inside dark brand panels regardless of theme) */
+  onDarkSurface?: boolean;
 }
 
 const sizeClasses = {
-  sm: { icon: 'h-6 w-6', full: 'h-8' },
-  md: { icon: 'h-8 w-8', full: 'h-16' },
-  lg: { icon: 'h-10 w-10', full: 'h-20' },
-  xl: { icon: 'h-12 w-12', full: 'h-24' },
+  sm: { icon: 'h-6 w-6', full: 'h-7' },
+  md: { icon: 'h-8 w-8', full: 'h-10' },
+  lg: { icon: 'h-9 w-9', full: 'h-12' },
+  xl: { icon: 'h-10 w-10', full: 'h-16' },
 } as const;
 
 export function AppLogo({
@@ -23,6 +25,7 @@ export function AppLogo({
   size = 'md',
   href = '/',
   className = '',
+  onDarkSurface = false,
 }: AppLogoProps) {
   const sizes = sizeClasses[size];
 
@@ -33,28 +36,36 @@ export function AppLogo({
         src="/icon.png"
         alt="Velocity"
         className={`${sizes.icon} ${
-          variant === 'responsive' ? 'lg:hidden' :
-          variant === 'icon' ? '' : 'hidden'
+          variant === 'responsive' ? 'lg:hidden' : variant === 'icon' ? '' : 'hidden'
         }`}
       />
 
-      {/* Full logo - shown on desktop when responsive, always when variant='full' */}
       {variant !== 'icon' && (
         <>
-          <img
-            src="/logo-light.png"
-            alt="Velocity"
-            className={`${sizes.full} ${
-              variant === 'responsive' ? 'hidden lg:block dark:hidden' : 'dark:hidden'
-            }`}
-          />
-          <img
-            src="/logo-dark.png"
-            alt="Velocity"
-            className={`${sizes.full} ${
-              variant === 'responsive' ? 'hidden dark:lg:block' : 'hidden dark:block'
-            }`}
-          />
+          {onDarkSurface ? (
+            <img
+              src="/logo-dark.png"
+              alt="Velocity"
+              className={`${sizes.full} ${variant === 'responsive' ? 'hidden lg:block' : ''}`}
+            />
+          ) : (
+            <>
+              <img
+                src="/logo-light.png"
+                alt="Velocity"
+                className={`${sizes.full} ${
+                  variant === 'responsive' ? 'hidden lg:block dark:hidden' : 'dark:hidden'
+                }`}
+              />
+              <img
+                src="/logo-dark.png"
+                alt="Velocity"
+                className={`${sizes.full} ${
+                  variant === 'responsive' ? 'hidden dark:lg:block' : 'hidden dark:block'
+                }`}
+              />
+            </>
+          )}
         </>
       )}
     </>
