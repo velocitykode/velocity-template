@@ -6,144 +6,155 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================================
+   Theme tokens — hoisted into @theme so utilities like `bg-bg`,
+   `text-fg`, `border-border-strong`, `bg-panel` are generated.
+   Dark mode overrides the same --color-* vars under `.dark`,
+   and Tailwind emits utilities that reference them via var(),
+   so the cascade handles theme swapping with zero extra CSS.
+   ============================================================ */
 @theme {
+    /* Typography */
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Inter', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
     --font-mono:
-        ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+        'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 
-    --radius-lg: var(--radius);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-sm: calc(var(--radius) - 4px);
+    /* Sharp edges */
+    --radius-lg: 0px;
+    --radius-md: 0px;
+    --radius-sm: 0px;
+    --radius: 0px;
 
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
+    /* Paper palette — light defaults (overridden in .dark below) */
+    --color-bg: #faf7f0;
+    --color-surface: #ffffff;
+    --color-surface-alt: #f3ede0;
+    --color-fg: #0a0a0a;
+    --color-muted: #595959;
+    --color-dim: #8a8a8a;
+    --color-border: #d9d3c5;
+    --color-border-strong: #b8b0a0;
+    --color-accent: #0a0a0a;
+    --color-accent-fg: #faf7f0;
+    --color-error: #c0392b;
+    --color-error-soft: #f3d9d4;
 
-    --color-card: var(--card);
-    --color-card-foreground: var(--card-foreground);
-
-    --color-popover: var(--popover);
-    --color-popover-foreground: var(--popover-foreground);
-
-    --color-primary: var(--primary);
-    --color-primary-foreground: var(--primary-foreground);
-
-    --color-secondary: var(--secondary);
-    --color-secondary-foreground: var(--secondary-foreground);
-
-    --color-muted: var(--muted);
-    --color-muted-foreground: var(--muted-foreground);
-
-    --color-accent: var(--accent);
-    --color-accent-foreground: var(--accent-foreground);
-
-    --color-destructive: var(--destructive);
-    --color-destructive-foreground: var(--destructive-foreground);
-
-    --color-border: var(--border);
-    --color-input: var(--input);
-    --color-ring: var(--ring);
-
-    --color-chart-1: var(--chart-1);
-    --color-chart-2: var(--chart-2);
-    --color-chart-3: var(--chart-3);
-    --color-chart-4: var(--chart-4);
-    --color-chart-5: var(--chart-5);
-
-    --color-sidebar: var(--sidebar);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-ring: var(--sidebar-ring);
+    /* Brand panel palette — dark surface used in auth-layout left column.
+       Stays dark across both themes for a consistent brand silhouette,
+       but we do shift slightly in dark mode (see .dark override). */
+    --color-panel: #0a0a0a;
+    --color-panel-surface: #141414;
+    --color-panel-fg: #faf7f0;
+    --color-panel-muted: #9a9a9a;
+    --color-panel-dim: #6b6b6b;
+    --color-panel-border: #26231d;
 }
 
-:root {
-    /* Velocity Brand Colors */
-    --velocity-primary: #1e3a8a;
-    --velocity-primary-hover: #1e3070;
-
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.295 0.095 264);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.295 0.095 264);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.295 0.095 264);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.985 0 0);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.295 0.095 264);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.295 0.095 264);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.295 0.095 264);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.295 0.095 264);
-}
-
+/* Dark mode overrides — Tailwind utilities reference var(--color-*),
+   so changing the vars here flips every themed utility. */
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.6 0.15 264);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.396 0.141 25.723);
-    --destructive-foreground: oklch(0.985 0 0);
-    --border: oklch(0.269 0 0);
-    --input: oklch(0.269 0 0);
-    --ring: oklch(0.6 0.15 264);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.6 0.15 264);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.6 0.15 264);
+    --color-bg: #0a0a0a;
+    --color-surface: #141414;
+    --color-surface-alt: #1c1c1c;
+    --color-fg: #faf7f0;
+    --color-muted: #a0a0a0;
+    --color-dim: #6b6b6b;
+    --color-border: #2a2a2a;
+    --color-border-strong: #3d3d3d;
+    --color-accent: #faf7f0;
+    --color-accent-fg: #0a0a0a;
+    --color-error: #ff6b5a;
+    --color-error-soft: #3a1a16;
+
+    --color-panel: #141414;
+    --color-panel-surface: #1c1c1c;
+    --color-panel-fg: #faf7f0;
+    --color-panel-muted: #a0a0a0;
+    --color-panel-dim: #6b6b6b;
+    --color-panel-border: #2a2a2a;
 }
 
 @layer base {
-    * {
-        @apply border-border;
+    html,
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-fg);
     }
 
     body {
-        @apply bg-background text-foreground;
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
+
+    input,
+    textarea,
+    select,
+    button {
+        font-family: inherit;
+    }
+
+    ::selection {
+        background-color: var(--color-accent);
+        color: var(--color-accent-fg);
+    }
+}
+
+@layer utilities {
+    /* Subtle grid texture for dark brand panels */
+    .bg-paper-grid {
+        background-image:
+            linear-gradient(var(--color-panel-border) 1px, transparent 1px),
+            linear-gradient(90deg, var(--color-panel-border) 1px, transparent 1px);
+        background-size: 48px 48px;
+        background-position: -1px -1px;
+        opacity: 0.5;
+    }
+
+    /* Mono caption for labels, helper text, legal lines */
+    .caption-mono {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        line-height: 1.5;
+    }
+    .caption-mono-upper {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        line-height: 1.5;
+    }
+
+    /* Underline style for in-prose links (Rivian legal treatment) */
+    .link-underline {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-thickness: 1px;
+    }
+    .link-underline:hover {
+        text-decoration-thickness: 2px;
+    }
+
+    /* Terminal ASCII spinner — used for Button loading state */
+    .ascii-spinner::before {
+        content: '|';
+        display: inline-block;
+        width: 1ch;
+        text-align: center;
+        font-family: var(--font-mono);
+        font-weight: 500;
+        animation: ascii-spin 0.6s linear infinite;
+    }
+}
+
+@keyframes ascii-spin {
+    0%   { content: '|'; }
+    25%  { content: '/'; }
+    50%  { content: '—'; }
+    75%  { content: '\\'; }
 }

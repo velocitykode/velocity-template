@@ -1,40 +1,113 @@
-export default function Home({ message }: { message: string }) {
+import { AppLogo, Badge, Button, ThemeToggle } from '@/components/ui';
+import { usePageTitle } from '@/hooks/use-page-title';
+import { Link } from '@inertiajs/react';
+import { ArrowRight, BookOpen, Github } from 'lucide-react';
+
+export default function Home({ message }: { message?: string }) {
+  usePageTitle('Welcome');
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Velocity</h1>
-        <p className="text-lg text-gray-600 mb-6">
-          The full-stack web framework for Go — batteries included, fast by default, ready to ship.
-        </p>
-        <div className="space-y-4">
-          <div className="flex items-start gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-sm font-medium">1</span>
-            <div>
-              <p className="text-gray-700">
-                Read the <a href="https://github.com/velocitykode/velocity" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Documentation</a>
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-sm font-medium">2</span>
-            <div>
-              <p className="text-gray-700">
-                Explore <a href="https://github.com/velocitykode/velocity/tree/main/examples" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Examples</a>
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <a
-            href="https://github.com/velocitykode/velocity"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-gray-900 text-white px-6 py-2 rounded-md hover:bg-gray-800 transition"
+    <div className="min-h-screen bg-bg text-fg flex flex-col">
+      {/* Top bar */}
+      <header className="flex h-12 items-center justify-between border-b border-border px-4 sm:px-5 lg:px-6">
+        <AppLogo variant="full" size="md" href="/" />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Link
+            href="/login"
+            className="caption-mono-upper text-muted hover:text-fg transition-colors px-2"
           >
-            Star on GitHub
-          </a>
+            Sign in
+          </Link>
         </div>
-      </div>
+      </header>
+
+      {/* Main */}
+      <main className="flex-1 flex items-center justify-center px-4 py-8 sm:px-5 lg:px-6">
+        <div className="w-full max-w-3xl">
+          <Badge variant="outline" className="mb-4">
+            Ready to ship
+          </Badge>
+          <h1 className="font-sans text-4xl sm:text-5xl lg:text-6xl xl:text-[68px] font-semibold tracking-tight leading-[1.05]">
+            Welcome to Velocity.
+            <br />
+            <span className="text-muted">
+              {message || 'Build faster with pure Go power.'}
+            </span>
+          </h1>
+          <p className="mt-4 max-w-xl text-[15px] lg:text-[17px] leading-relaxed text-muted">
+            A batteries-included full-stack framework for Go — routing, auth, db,
+            queues, websockets. Twenty-three services, zero yak-shaving.
+          </p>
+
+          <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
+            <Link href="/register">
+              <Button size="lg" iconRight={ArrowRight} fullWidth>
+                Get started
+              </Button>
+            </Link>
+            <a
+              href="https://github.com/velocitykode/velocity"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-12 items-center justify-center gap-2 border border-border-strong px-5 text-[14px] tracking-wide text-fg transition-colors hover:bg-surface-alt"
+            >
+              <Github className="h-4 w-4" />
+              Star on GitHub
+            </a>
+          </div>
+
+          {/* Resource rows */}
+          <div className="mt-10 grid gap-px bg-border sm:grid-cols-2 border border-border">
+            <a
+              href="https://github.com/velocitykode/velocity"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-start gap-3 bg-surface p-4 transition-colors hover:bg-surface-alt"
+            >
+              <BookOpen className="h-4 w-4 mt-0.5 text-muted" />
+              <div className="flex-1">
+                <div className="caption-mono-upper text-dim">
+                  01 · Documentation
+                </div>
+                <div className="mt-0.5 text-sm text-fg">
+                  Read the full API reference and guides.
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-dim transition-transform group-hover:translate-x-0.5" />
+            </a>
+            <a
+              href="https://github.com/velocitykode/velocity/tree/main/examples"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-start gap-3 bg-surface p-4 transition-colors hover:bg-surface-alt"
+            >
+              <Github className="h-4 w-4 mt-0.5 text-muted" />
+              <div className="flex-1">
+                <div className="caption-mono-upper text-dim">
+                  02 · Examples
+                </div>
+                <div className="mt-0.5 text-sm text-fg">
+                  Browse real-world starter apps & patterns.
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-dim transition-transform group-hover:translate-x-0.5" />
+            </a>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border px-4 py-3 sm:px-5 lg:px-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="caption-mono-upper text-dim">
+            © {new Date().getFullYear()} Velocity
+          </p>
+          <p className="caption-mono text-dim">
+            build:pre-1.0 · go/1.26+
+          </p>
+        </div>
+      </footer>
     </div>
-  )
+  );
 }
