@@ -10,10 +10,7 @@ import (
 	"{{MODULE_NAME}}/config"
 
 	"github.com/velocitykode/velocity"
-	"github.com/velocitykode/velocity/auth"
-	"github.com/velocitykode/velocity/auth/drivers/guards"
 	"github.com/velocitykode/velocity/csrf"
-	"github.com/velocitykode/velocity/csrf/stores"
 	"github.com/velocitykode/velocity/view"
 )
 
@@ -24,30 +21,20 @@ func Configure(reg *velocity.ProviderRegistry) {
 	reg.Add(&AppProvider{})
 }
 
-// AppProvider wires CSRF, auth guards, and the view engine for this
-// application. CSRF is built in Register so it's available to the view
-// engine's shared-props closure that's set up in Boot.
+// AppProvider wires the view engine for this application. CSRF and auth
+// guards are built by the framework from env vars during velocity.New(),
+// so we only need to stand up the Inertia view engine and share the
+// CSRF token into its props.
 type AppProvider struct{}
 
-// Register binds the CSRF instance — runs before any provider's Boot.
+// Register runs before any provider's Boot. Nothing to do here — the
+// framework already built CSRF, Auth, and the session guard.
 func (p *AppProvider) Register(s *velocity.Services) error {
-	sessionName := envOrDefault("SESSION_NAME", "velocity_session")
-
-	csrfConfig := csrf.DefaultConfig()
-	csrfConfig.Store = stores.NewSessionStore()
-	csrfConfig.SessionCookieName = sessionName
-	csrfConfig.ExcludePaths = []string{"/api/webhooks/*", "/health"}
-
-	s.CSRF = csrf.New(csrfConfig)
 	return nil
 }
 
-// Boot wires auth and view — runs after every provider's Register, so
-// services bound by other providers are available here.
+// Boot wires the view engine — runs after every provider's Register.
 func (p *AppProvider) Boot(s *velocity.Services) error {
-	if err := bootstrapAuth(s); err != nil {
-		return err
-	}
 	return bootstrapView(s)
 }
 
@@ -71,27 +58,9 @@ func envDurationOrDefault(key string, fallback time.Duration) time.Duration {
 	return fallback
 }
 
-func bootstrapAuth(s *velocity.Services) error {
-	authManager := s.Auth.(*auth.Manager)
-	sessionConfig := auth.NewSessionConfigFromEnv()
-	provider := auth.NewORMUserProvider(s.DB.DB(), config.GetAuthModel(), authManager.GetHasher())
-	sessionGuard, err := guards.NewSessionGuard(provider, sessionConfig, s.Crypto)
-	if err != nil {
-		return err
-	}
-
-	authManager.RegisterGuard(config.GetAuthGuard(), sessionGuard)
-	return nil
-}
-
 func bootstrapView(s *velocity.Services) error {
-	template, err := view.LoadTemplateFromFile(config.GetViewTemplate())
-	if err != nil {
-		return err
-	}
-
 	viewConfig := view.Config{
-		RootTemplate: template,
+		RootTemplate: config.GetViewTemplate(),
 		Version:      config.GetViewVersion(),
 		SSREnabled:   os.Getenv("INERTIA_SSR_ENABLED") == "true",
 		SSRURL:       envOrDefault("INERTIA_SSR_URL", "http://127.0.0.1:13714"),
