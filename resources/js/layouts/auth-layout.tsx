@@ -32,9 +32,7 @@ export default function AuthLayout({
 
         {/* Top row: logo + theme toggle */}
         <div className="relative flex items-start justify-between px-6 py-5 xl:px-8 xl:py-6">
-          <Link href="/" className="inline-flex items-center">
-            <img src="/logo-dark.png" alt="Velocity" className="h-10 xl:h-12" />
-          </Link>
+          <AppLogo variant="full" size="xl" href="/" onDarkSurface />
           <ThemeToggle onDarkSurface />
         </div>
 
