@@ -17,8 +17,8 @@ import (
 //   - Web:    runs on routes inside r.Web(...)
 //   - API:    runs on routes inside r.API(prefix, ...)
 //
-// CSRF and the view engine instances live on Services — they were
-// registered by AppProvider.Register / Boot.
+// CSRF lives on Services (framework-built during velocity.New()); the
+// view engine is wired by AppProvider.Boot.
 func Middleware(m *velocity.MiddlewareStack) {
 	m.Global(
 		middleware.LoggingMiddleware,                          // Log all requests
