@@ -1,23 +1,23 @@
 import { Link } from '@inertiajs/react';
 
 interface AppLogoProps {
-  /** Show icon only (mobile) or full logo (desktop) */
+  /** icon = compact (v_), full = wordmark (velocity_), responsive = icon mobile / full lg+ */
   variant?: 'icon' | 'full' | 'responsive';
-  /** Logo height class */
+  /** Size — drives font-size */
   size?: 'sm' | 'md' | 'lg' | 'xl';
   /** Link to homepage */
   href?: string;
   /** Additional classes */
   className?: string;
-  /** Force the dark-surface logo (use inside dark brand panels regardless of theme) */
+  /** Force panel-fg coloring (use inside dark brand panels regardless of theme) */
   onDarkSurface?: boolean;
 }
 
 const sizeClasses = {
-  sm: { icon: 'h-6 w-6', full: 'h-7' },
-  md: { icon: 'h-8 w-8', full: 'h-10' },
-  lg: { icon: 'h-9 w-9', full: 'h-12' },
-  xl: { icon: 'h-10 w-10', full: 'h-16' },
+  sm: { icon: 'text-sm', full: 'text-base' },
+  md: { icon: 'text-base', full: 'text-lg' },
+  lg: { icon: 'text-lg', full: 'text-xl' },
+  xl: { icon: 'text-xl', full: 'text-2xl' },
 } as const;
 
 export function AppLogo({
@@ -28,56 +28,35 @@ export function AppLogo({
   onDarkSurface = false,
 }: AppLogoProps) {
   const sizes = sizeClasses[size];
+  const fg = onDarkSurface ? 'text-panel-fg' : 'text-fg';
 
-  const logoContent = (
-    <>
-      {/* Icon — shown on mobile when responsive, always when variant='icon' */}
-      <img
-        src="/icon.png"
-        alt="Velocity"
-        className={`${sizes.icon} ${
-          variant === 'responsive' ? 'lg:hidden' : variant === 'icon' ? '' : 'hidden'
-        }`}
-      />
-
-      {variant !== 'icon' && (
-        <>
-          {onDarkSurface ? (
-            <img
-              src="/logo-dark.png"
-              alt="Velocity"
-              className={`${sizes.full} ${variant === 'responsive' ? 'hidden lg:block' : ''}`}
-            />
-          ) : (
-            <>
-              <img
-                src="/logo-light.png"
-                alt="Velocity"
-                className={`${sizes.full} ${
-                  variant === 'responsive' ? 'hidden lg:block dark:hidden' : 'dark:hidden'
-                }`}
-              />
-              <img
-                src="/logo-dark.png"
-                alt="Velocity"
-                className={`${sizes.full} ${
-                  variant === 'responsive' ? 'hidden dark:lg:block' : 'hidden dark:block'
-                }`}
-              />
-            </>
-          )}
-        </>
-      )}
-    </>
+  const mark = (isIcon: boolean) => (
+    <span
+      className={`font-mono font-semibold tracking-tight leading-none ${isIcon ? sizes.icon : sizes.full} ${fg}`}
+    >
+      {isIcon ? 'v' : 'velocity'}
+      <span className="text-phosphor">_</span>
+    </span>
   );
+
+  const logoContent =
+    variant === 'icon' ? (
+      mark(true)
+    ) : variant === 'full' ? (
+      mark(false)
+    ) : (
+      <>
+        <span className="lg:hidden">{mark(true)}</span>
+        <span className="hidden lg:inline">{mark(false)}</span>
+      </>
+    );
 
   if (href) {
     return (
-      <Link href={href} className={`flex items-center ${className}`}>
+      <Link href={href} className={`inline-flex items-center ${className}`}>
         {logoContent}
       </Link>
     );
   }
-
-  return <div className={`flex items-center ${className}`}>{logoContent}</div>;
+  return <div className={`inline-flex items-center ${className}`}>{logoContent}</div>;
 }
