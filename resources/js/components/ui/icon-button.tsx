@@ -19,9 +19,9 @@ interface IconButtonBaseProps {
 type IconButtonProps = IconButtonBaseProps & ButtonOrLinkProps;
 
 const sizeClasses = {
-  sm: 'h-7 w-7',
-  md: 'h-8 w-8',
-  lg: 'h-10 w-10',
+  sm: 'h-8 w-8',
+  md: 'h-10 w-10',
+  lg: 'h-11 w-11',
 } as const;
 
 const iconSizeClasses = {
@@ -31,14 +31,17 @@ const iconSizeClasses = {
 } as const;
 
 const variantClasses = {
-  default: 'bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a8a]/30 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900',
-  danger: 'bg-slate-100 text-slate-500 hover:bg-red-100 hover:text-red-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-red-950/50 dark:hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/30 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900',
-  ghost: 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1e3a8a]/30 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900',
+  default:
+    'border border-border bg-transparent text-muted hover:border-fg hover:text-fg',
+  danger:
+    'border border-border bg-transparent text-muted hover:border-error hover:text-error',
+  ghost:
+    'bg-transparent text-muted hover:text-fg',
 } as const;
 
 export const IconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, IconButtonProps>(
   ({ icon: Icon, size = 'md', variant = 'default', className = '', as, ...props }, ref) => {
-    const classes = `flex items-center justify-center rounded-xl transition-all duration-150 active:scale-95 ${sizeClasses[size]} ${variantClasses[variant]} ${className}`;
+    const classes = `flex items-center justify-center rounded-none transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${sizeClasses[size]} ${variantClasses[variant]} ${className}`;
 
     if (as === 'a') {
       const { href, ...anchorProps } = props as ComponentProps<'a'> & { href: string };
@@ -54,7 +57,7 @@ export const IconButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, Icon
         <Icon className={iconSizeClasses[size]} />
       </button>
     );
-  }
+  },
 );
 
 IconButton.displayName = 'IconButton';
