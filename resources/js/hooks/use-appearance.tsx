@@ -45,7 +45,7 @@ const handleSystemThemeChange = () => {
 };
 
 export function initializeTheme() {
-    if (typeof localStorage === 'undefined') {
+    if (typeof window === 'undefined') {
         return;
     }
 
