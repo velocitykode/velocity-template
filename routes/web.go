@@ -15,7 +15,7 @@ func Register(r *velocity.Routing) {
 	// Operational endpoints sit at the top level — they don't run any
 	// middleware stack so load balancers can probe /health cheaply.
 	r.Health("/health")
-	r.Static("public")
+	r.StaticFallback("public")
 
 	r.Web(func(web router.Router) {
 		// Root — / always redirects to /login.
