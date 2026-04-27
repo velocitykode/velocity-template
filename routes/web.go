@@ -18,6 +18,11 @@ func Register(r *velocity.Routing) {
 	r.Static("public")
 
 	r.Web(func(web router.Router) {
+		// / redirects to /login; Guest middleware on /login bounces authenticated users to /dashboard.
+		web.Get("/", func(c *router.Context) error {
+			return c.Redirect(router.StatusFound, "/login")
+		})
+
 		// Guest-only - middleware.Guest redirects authenticated users
 		// to /dashboard.
 		web.Group("", func(guest router.Router) {
@@ -31,7 +36,6 @@ func Register(r *velocity.Routing) {
 
 		// Authenticated - middleware.Auth redirects guests to /login.
 		web.Group("", func(auth router.Router) {
-			auth.Get("/", handlers.Dashboard)          // /
 			auth.Get("/dashboard", handlers.Dashboard) // /dashboard
 		}).Use(middleware.Auth)
 	})
