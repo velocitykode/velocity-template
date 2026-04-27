@@ -18,7 +18,7 @@ func Register(r *velocity.Routing) {
 	r.Static("public")
 
 	r.Web(func(web router.Router) {
-		// / always redirects to /login.
+		// Root — / always redirects to /login.
 		web.Get("/", func(c *router.Context) error {
 			return c.Redirect(router.StatusFound, "/login")
 		})
