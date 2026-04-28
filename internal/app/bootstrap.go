@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"html/template"
 	"net/http"
 	"os"
 	"strings"
@@ -10,6 +11,7 @@ import (
 	"{{MODULE_NAME}}/config"
 
 	"github.com/velocitykode/velocity"
+	"github.com/velocitykode/velocity/bond/vite"
 	"github.com/velocitykode/velocity/csrf"
 	"github.com/velocitykode/velocity/view"
 )
@@ -66,12 +68,31 @@ func bootstrapView(s *velocity.Services) error {
 		return err
 	}
 
+	// Vite helper exposes {{ vite "resources/js/app.tsx" }} to the
+	// root template. In dev (public/hot exists) it emits dev-server
+	// tags; in prod it reads public/build/.vite/manifest.json and
+	// emits hashed asset URLs with modulepreload + stylesheet links.
+	viteHelper := vite.New()
+
 	viewConfig := view.Config{
 		RootTemplate: string(templateBytes),
 		Version:      config.GetViewVersion(),
 		SSREnabled:   os.Getenv("INERTIA_SSR_ENABLED") == "true",
 		SSRURL:       envOrDefault("INERTIA_SSR_URL", "http://127.0.0.1:13714"),
 		SSRTimeout:   envDurationOrDefault("INERTIA_SSR_TIMEOUT", 3*time.Second),
+		Funcs: template.FuncMap{
+			"vite": func(entrypoints ...string) template.HTML {
+				out, _ := viteHelper.Tags(entrypoints...)
+				return out
+			},
+			// React Fast Refresh preamble - emits a script in dev
+			// mode, empty in prod. Must precede {{ vite ... }} so the
+			// preamble runs before @vite/client.
+			"viteReactRefresh": func() template.HTML {
+				out, _ := viteHelper.ReactRefreshTag()
+				return out
+			},
+		},
 	}
 	if except := os.Getenv("INERTIA_SSR_EXCEPT"); except != "" {
 		for _, p := range strings.Split(except, ",") {
