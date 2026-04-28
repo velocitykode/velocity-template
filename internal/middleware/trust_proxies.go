@@ -18,15 +18,18 @@ func TrustProxiesMiddleware(next router.HandlerFunc) router.HandlerFunc {
 			}
 		}
 
-		// Handle X-Forwarded-Proto header for scheme detection
-		if proto := c.Request.Header.Get("X-Forwarded-Proto"); proto != "" {
-			c.Request.URL.Scheme = proto
-		}
-
 		// Handle X-Forwarded-Host header
 		if host := c.Request.Header.Get("X-Forwarded-Host"); host != "" {
 			c.Request.Host = host
 		}
+
+		// X-Forwarded-Proto is intentionally NOT applied to r.URL.Scheme.
+		// On a server-received request r.URL is path-only, so r.URL.String()
+		// returns just the path — which is what Inertia's "url" page prop
+		// expects. Setting Scheme without Host turns r.URL.String() into
+		// "https:///path" (empty host) and breaks Inertia navigation.
+		// Code that genuinely needs scheme awareness should read the
+		// X-Forwarded-Proto header directly.
 
 		return next(c)
 	}
