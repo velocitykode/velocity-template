@@ -1,14 +1,15 @@
-# Velocity Template
+# Velocity Template - React
 
-Default project template for the [Velocity](https://github.com/velocitykode/velocity) Go web framework.
+Full-stack starter template for the [Velocity](https://github.com/velocitykode/velocity) Go web framework using React + Inertia.js.
 
 ## Stack
 
-- **Backend**: Velocity Go Framework
-- **Frontend**: React 18 + TypeScript
-- **Rendering**: Inertia.js
-- **Styling**: Tailwind CSS
-- **Build**: Vite
+- **Backend**: Velocity Go framework
+- **Frontend**: React 19 + TypeScript 5
+- **Rendering**: Inertia.js 3 (`@inertiajs/react`)
+- **UI**: shadcn/ui (Radix primitives) + Headless UI + lucide-react
+- **Styling**: Tailwind CSS 4
+- **Build**: Vite 7 (with `@velocitykode/velocity-vite-plugin`)
 
 ## Usage
 
