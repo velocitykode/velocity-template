@@ -6,6 +6,7 @@ bun.lock
 
 # Build
 public/build/
+public/hot
 dist/
 
 # Environment
