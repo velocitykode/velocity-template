@@ -130,7 +130,7 @@ func AuthRegister(ctx *router.Context) error {
 	}
 
 	// Check if user already exists
-	existingUser, _ := models.User{}.FindBy("email", formData.Email)
+	existingUser, _ := models.User{}.FindBy(ctx.Request.Context(), "email", formData.Email)
 	if existingUser != nil {
 		view.FromContext(ctx).Render(ctx.Response, ctx.Request, "Auth/Register", view.Props{
 			"errors": map[string]string{
@@ -145,7 +145,7 @@ func AuthRegister(ctx *router.Context) error {
 	}
 
 	// Create new user
-	user, err := models.User{}.Create(map[string]any{
+	user, err := models.User{}.Create(ctx.Request.Context(), map[string]any{
 		"name":     formData.Name,
 		"email":    formData.Email,
 		"password": hashedPassword,
