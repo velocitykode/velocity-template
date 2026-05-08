@@ -77,9 +77,9 @@ func bootstrapView(s *velocity.Services) error {
 	viewConfig := view.Config{
 		RootTemplate: string(templateBytes),
 		Version:      config.GetViewVersion(),
-		SSREnabled:   os.Getenv("INERTIA_SSR_ENABLED") == "true",
-		SSRURL:       envOrDefault("INERTIA_SSR_URL", "http://127.0.0.1:13714"),
-		SSRTimeout:   envDurationOrDefault("INERTIA_SSR_TIMEOUT", 3*time.Second),
+		SSREnabled:   os.Getenv("VIEW_SSR_ENABLED") == "true",
+		SSRURL:       envOrDefault("VIEW_SSR_URL", "http://127.0.0.1:13714"),
+		SSRTimeout:   envDurationOrDefault("VIEW_SSR_TIMEOUT", 3*time.Second),
 		Funcs: template.FuncMap{
 			"vite": func(entrypoints ...string) template.HTML {
 				out, _ := viteHelper.Tags(entrypoints...)
@@ -94,7 +94,7 @@ func bootstrapView(s *velocity.Services) error {
 			},
 		},
 	}
-	if except := os.Getenv("INERTIA_SSR_EXCEPT"); except != "" {
+	if except := os.Getenv("VIEW_SSR_EXCEPT"); except != "" {
 		for _, p := range strings.Split(except, ",") {
 			if p = strings.TrimSpace(p); p != "" {
 				viewConfig.SSRExcept = append(viewConfig.SSRExcept, p)
