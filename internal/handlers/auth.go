@@ -5,8 +5,47 @@ import (
 
 	"github.com/velocitykode/velocity/auth"
 	"github.com/velocitykode/velocity/router"
+	"github.com/velocitykode/velocity/validation"
+	"github.com/velocitykode/velocity/validation/vform"
 	"github.com/velocitykode/velocity/view"
 )
+
+// LoginRequest is the form-request schema for POST /login. vform.Form[T]
+// binds the request body into a *LoginRequest, runs Rules(), flashes
+// errors via WithErrors/WithInput, redirects back, and returns
+// router.ErrValidationAborted to short-circuit the handler. The frontend
+// reads the flashed errors/old props on the next render.
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Remember bool   `json:"remember"`
+}
+
+func (r *LoginRequest) Rules() validation.Rules {
+	return validation.Rules{
+		"email":    {"required", "email"},
+		"password": {"required"},
+	}
+}
+
+// RegisterRequest schema for POST /register. The unique:users,email rule
+// is enforced by the validation engine against the configured database
+// driver; the confirmed rule pairs password with password_confirmation
+// without a manual equality check.
+type RegisterRequest struct {
+	Name                 string `json:"name"`
+	Email                string `json:"email"`
+	Password             string `json:"password"`
+	PasswordConfirmation string `json:"password_confirmation"`
+}
+
+func (r *RegisterRequest) Rules() validation.Rules {
+	return validation.Rules{
+		"name":     {"required", "max:255"},
+		"email":    {"required", "email", "unique:users,email"},
+		"password": {"required", "min:8", "confirmed"},
+	}
+}
 
 // AuthShowLoginForm displays the login page
 func AuthShowLoginForm(ctx *router.Context) error {
@@ -16,34 +55,23 @@ func AuthShowLoginForm(ctx *router.Context) error {
 
 // AuthLogin handles the login request
 func AuthLogin(ctx *router.Context) error {
-	var formData struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		Remember bool   `json:"remember"`
-	}
-
-	if err := ctx.Bind(&formData); err != nil {
-		// Fallback to form values
-		formData.Email = ctx.Request.FormValue("email")
-		formData.Password = ctx.Request.FormValue("password")
-		formData.Remember = ctx.Request.FormValue("remember") == "on"
+	req, err := vform.Form[LoginRequest](ctx)
+	if err != nil {
+		return err
 	}
 
 	credentials := map[string]interface{}{
-		"email":    formData.Email,
-		"password": formData.Password,
+		"email":    req.Email,
+		"password": req.Password,
 	}
 
-	success, _ := auth.FromContext(ctx).Attempt(ctx.Response, ctx.Request, credentials, formData.Remember)
+	success, _ := auth.FromContext(ctx).Attempt(ctx.Response, ctx.Request, credentials, req.Remember)
 	if !success {
-		view.Render(ctx, "Auth/Login", view.Props{
-			"errors": map[string]string{
-				"email": "These credentials do not match our records.",
-			},
-			"old": map[string]string{
-				"email": formData.Email,
-			},
+		ctx.WithErrors(map[string][]string{
+			"email": {"These credentials do not match our records."},
 		})
+		ctx.WithInput(map[string]any{"email": req.Email})
+		view.Back(ctx)
 		return nil
 	}
 
@@ -66,110 +94,40 @@ func AuthShowRegisterForm(ctx *router.Context) error {
 
 // AuthRegister handles the registration request
 func AuthRegister(ctx *router.Context) error {
-	var formData struct {
-		Name                 string `json:"name"`
-		Email                string `json:"email"`
-		Password             string `json:"password"`
-		PasswordConfirmation string `json:"password_confirmation"`
-	}
-
-	if err := ctx.Bind(&formData); err != nil {
-		// Fallback to form values
-		formData.Name = ctx.Request.FormValue("name")
-		formData.Email = ctx.Request.FormValue("email")
-		formData.Password = ctx.Request.FormValue("password")
-		formData.PasswordConfirmation = ctx.Request.FormValue("password_confirmation")
-	}
-
-	// Validate required fields
-	errors := make(map[string]string)
-	if formData.Name == "" {
-		errors["name"] = "Name is required."
-	}
-	if formData.Email == "" {
-		errors["email"] = "Email is required."
-	}
-	if formData.Password == "" {
-		errors["password"] = "Password is required."
-	}
-
-	if len(errors) > 0 {
-		view.Render(ctx, "Auth/Register", view.Props{
-			"errors": errors,
-			"old": map[string]string{
-				"name":  formData.Name,
-				"email": formData.Email,
-			},
-		})
-		return nil
-	}
-
-	// Validate passwords match
-	if formData.Password != formData.PasswordConfirmation {
-		view.Render(ctx, "Auth/Register", view.Props{
-			"errors": map[string]string{
-				"password": "The password confirmation does not match.",
-			},
-			"old": map[string]string{
-				"name":  formData.Name,
-				"email": formData.Email,
-			},
-		})
-		return nil
-	}
-
-	// Hash password
-	hashedPassword, err := auth.FromContext(ctx).Hash(formData.Password)
+	req, err := vform.Form[RegisterRequest](ctx)
 	if err != nil {
-		view.Render(ctx, "Auth/Register", view.Props{
-			"errors": map[string]string{
-				"password": "Failed to process password.",
-			},
-		})
+		return err
+	}
+
+	hashedPassword, err := auth.FromContext(ctx).Hash(req.Password)
+	if err != nil {
+		ctx.Log().Error("Failed to hash password", "error", err)
+		ctx.WithErrors(map[string][]string{"password": {"Failed to process password."}})
+		ctx.WithInput(map[string]any{"name": req.Name, "email": req.Email})
+		view.Back(ctx)
 		return nil
 	}
 
-	// Check if user already exists
-	existingUser, _ := models.User{}.FindBy(ctx.Request.Context(), "email", formData.Email)
-	if existingUser != nil {
-		view.Render(ctx, "Auth/Register", view.Props{
-			"errors": map[string]string{
-				"email": "A user with this email already exists.",
-			},
-			"old": map[string]string{
-				"name":  formData.Name,
-				"email": formData.Email,
-			},
-		})
-		return nil
-	}
-
-	// Create new user
 	user, err := models.User{}.Create(ctx.Request.Context(), map[string]any{
-		"name":     formData.Name,
-		"email":    formData.Email,
+		"name":     req.Name,
+		"email":    req.Email,
 		"password": hashedPassword,
 	})
 	if err != nil {
 		ctx.Log().Error("Failed to create user", "error", err)
-		view.Render(ctx, "Auth/Register", view.Props{
-			"errors": map[string]string{
-				"email": "Failed to create account. Please try again.",
-			},
-		})
+		ctx.WithErrors(map[string][]string{"email": {"Failed to create account. Please try again."}})
+		ctx.WithInput(map[string]any{"name": req.Name, "email": req.Email})
+		view.Back(ctx)
 		return nil
 	}
 
 	ctx.Log().Info("User created successfully", "email", user.Email, "id", user.ID)
 
-	// Auto-login the new user
 	credentials := map[string]interface{}{
-		"email":    formData.Email,
-		"password": formData.Password,
+		"email":    req.Email,
+		"password": req.Password,
 	}
-
-	success, _ := auth.FromContext(ctx).Attempt(ctx.Response, ctx.Request, credentials, false)
-	if success {
+	if success, _ := auth.FromContext(ctx).Attempt(ctx.Response, ctx.Request, credentials, false); success {
 		view.Redirect(ctx, "/dashboard")
 	} else {
 		view.Redirect(ctx, "/login")
