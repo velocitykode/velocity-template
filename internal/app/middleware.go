@@ -36,8 +36,8 @@ func Middleware(m *velocity.MiddlewareStack) {
 
 	m.Web(
 		middleware.SessionMiddleware,    // Session cookie (must run before CSRF)
-		middleware.CSRFTokenMiddleware,  // Inject CSRF token into template data
-		csrfInstance.RouterMiddleware(), // Validate CSRF token on unsafe methods
+		csrfInstance.RouterMiddleware(), // Attaches request-scoped token cache + validates unsafe methods
+		middleware.CSRFTokenMiddleware,  // Inject CSRF token into template data (reads TokenForRequest)
 		viewEngine.Middleware(),         // Inertia version + X-Inertia headers
 	)
 
