@@ -47,14 +47,14 @@ func AuthLogin(ctx *router.Context) error {
 		return nil
 	}
 
-	view.FromContext(ctx).Redirect(ctx.Response, ctx.Request, "/dashboard")
+	view.Redirect(ctx, "/dashboard")
 	return nil
 }
 
 // AuthLogout handles the logout request
 func AuthLogout(ctx *router.Context) error {
 	auth.FromContext(ctx).Logout(ctx.Response, ctx.Request)
-	view.FromContext(ctx).Redirect(ctx.Response, ctx.Request, "/login")
+	view.Redirect(ctx, "/login")
 	return nil
 }
 
@@ -170,9 +170,9 @@ func AuthRegister(ctx *router.Context) error {
 
 	success, _ := auth.FromContext(ctx).Attempt(ctx.Response, ctx.Request, credentials, false)
 	if success {
-		view.FromContext(ctx).Redirect(ctx.Response, ctx.Request, "/dashboard")
+		view.Redirect(ctx, "/dashboard")
 	} else {
-		view.FromContext(ctx).Redirect(ctx.Response, ctx.Request, "/login")
+		view.Redirect(ctx, "/login")
 	}
 	return nil
 }
