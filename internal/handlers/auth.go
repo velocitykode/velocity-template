@@ -10,7 +10,7 @@ import (
 
 // AuthShowLoginForm displays the login page
 func AuthShowLoginForm(ctx *router.Context) error {
-	view.FromContext(ctx).Render(ctx.Response, ctx.Request, "Auth/Login", view.Props{})
+	view.Render(ctx, "Auth/Login", view.Props{})
 	return nil
 }
 
@@ -36,7 +36,7 @@ func AuthLogin(ctx *router.Context) error {
 
 	success, _ := auth.FromContext(ctx).Attempt(ctx.Response, ctx.Request, credentials, formData.Remember)
 	if !success {
-		view.FromContext(ctx).Render(ctx.Response, ctx.Request, "Auth/Login", view.Props{
+		view.Render(ctx, "Auth/Login", view.Props{
 			"errors": map[string]string{
 				"email": "These credentials do not match our records.",
 			},
@@ -60,7 +60,7 @@ func AuthLogout(ctx *router.Context) error {
 
 // AuthShowRegisterForm displays the registration page
 func AuthShowRegisterForm(ctx *router.Context) error {
-	view.FromContext(ctx).Render(ctx.Response, ctx.Request, "Auth/Register", view.Props{})
+	view.Render(ctx, "Auth/Register", view.Props{})
 	return nil
 }
 
@@ -94,7 +94,7 @@ func AuthRegister(ctx *router.Context) error {
 	}
 
 	if len(errors) > 0 {
-		view.FromContext(ctx).Render(ctx.Response, ctx.Request, "Auth/Register", view.Props{
+		view.Render(ctx, "Auth/Register", view.Props{
 			"errors": errors,
 			"old": map[string]string{
 				"name":  formData.Name,
@@ -106,7 +106,7 @@ func AuthRegister(ctx *router.Context) error {
 
 	// Validate passwords match
 	if formData.Password != formData.PasswordConfirmation {
-		view.FromContext(ctx).Render(ctx.Response, ctx.Request, "Auth/Register", view.Props{
+		view.Render(ctx, "Auth/Register", view.Props{
 			"errors": map[string]string{
 				"password": "The password confirmation does not match.",
 			},
@@ -121,7 +121,7 @@ func AuthRegister(ctx *router.Context) error {
 	// Hash password
 	hashedPassword, err := auth.FromContext(ctx).Hash(formData.Password)
 	if err != nil {
-		view.FromContext(ctx).Render(ctx.Response, ctx.Request, "Auth/Register", view.Props{
+		view.Render(ctx, "Auth/Register", view.Props{
 			"errors": map[string]string{
 				"password": "Failed to process password.",
 			},
@@ -132,7 +132,7 @@ func AuthRegister(ctx *router.Context) error {
 	// Check if user already exists
 	existingUser, _ := models.User{}.FindBy(ctx.Request.Context(), "email", formData.Email)
 	if existingUser != nil {
-		view.FromContext(ctx).Render(ctx.Response, ctx.Request, "Auth/Register", view.Props{
+		view.Render(ctx, "Auth/Register", view.Props{
 			"errors": map[string]string{
 				"email": "A user with this email already exists.",
 			},
@@ -152,7 +152,7 @@ func AuthRegister(ctx *router.Context) error {
 	})
 	if err != nil {
 		ctx.Log().Error("Failed to create user", "error", err)
-		view.FromContext(ctx).Render(ctx.Response, ctx.Request, "Auth/Register", view.Props{
+		view.Render(ctx, "Auth/Register", view.Props{
 			"errors": map[string]string{
 				"email": "Failed to create account. Please try again.",
 			},
