@@ -109,15 +109,10 @@ func bootstrapView(s *velocity.Services) error {
 
 	s.View = engine
 
-	sessionName := envOrDefault("SESSION_NAME", "velocity_session")
-	csrfInstance := s.CSRF.(*csrf.CSRF)
-
 	engine.SetSharePropsFunc(func(r *http.Request) (view.Props, error) {
 		props := view.Props{}
-		if cookie, err := r.Cookie(sessionName); err == nil {
-			if token, err := csrfInstance.GetToken(cookie.Value); err == nil && token != "" {
-				props["csrf_token"] = token
-			}
+		if token, err := csrf.TokenForRequest(r); err == nil && token != "" {
+			props["csrf_token"] = token
 		}
 		return props, nil
 	})
