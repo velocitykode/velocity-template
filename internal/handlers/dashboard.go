@@ -18,7 +18,7 @@ func Dashboard(ctx *router.Context) error {
 		userMap["email"] = authUser.Email
 	}
 
-	view.FromContext(ctx).Render(ctx.Response, ctx.Request, "Dashboard", view.Props{
+	view.Render(ctx, "Dashboard", view.Props{
 		"auth": map[string]interface{}{
 			"user": userMap,
 		},

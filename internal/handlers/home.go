@@ -6,7 +6,7 @@ import (
 )
 
 func Home(ctx *router.Context) error {
-	view.FromContext(ctx).Render(ctx.Response, ctx.Request, "Home", view.Props{
+	view.Render(ctx, "Home", view.Props{
 		"message": "Welcome to Velocity",
 	})
 	return nil
