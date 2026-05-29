@@ -13,6 +13,7 @@ func init() {
 				t.String("email").Unique()
 				t.String("password")
 				t.String("role").Default("user")
+				t.String("remember_token").Nullable()
 				t.Timestamps()
 			})
 		},
