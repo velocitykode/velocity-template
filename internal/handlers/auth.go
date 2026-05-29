@@ -75,7 +75,10 @@ func AuthLogin(ctx *router.Context) error {
 		return nil
 	}
 
-	view.Redirect(ctx, "/dashboard")
+	// Honour the intended destination the auth middleware stashed in the
+	// session before bouncing the guest to /login (falls back to
+	// /dashboard for a direct login).
+	view.Redirect(ctx, ctx.Intended("/dashboard"))
 	return nil
 }
 
@@ -128,7 +131,7 @@ func AuthRegister(ctx *router.Context) error {
 		"password": req.Password,
 	}
 	if success, _ := auth.FromContext(ctx).Attempt(ctx.Response, ctx.Request, credentials, false); success {
-		view.Redirect(ctx, "/dashboard")
+		view.Redirect(ctx, ctx.Intended("/dashboard"))
 	} else {
 		view.Redirect(ctx, "/login")
 	}
