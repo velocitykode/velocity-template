@@ -1,6 +1,9 @@
 package app
 
 import (
+	"os"
+	"strings"
+
 	"{{MODULE_NAME}}/internal/middleware"
 
 	"github.com/velocitykode/velocity"
@@ -28,7 +31,7 @@ func Middleware(m *velocity.MiddlewareStack) {
 		middleware.LoggingMiddleware,      // Log all requests (no framework export yet)
 		middleware.TrustProxiesMiddleware, // Handle X-Forwarded-* headers (no framework export yet)
 		router.CORS(router.CORSConfig{ // Framework CORS (velocity/router/cors.go)
-			AllowedOrigins:   []string{"*"},
+			AllowedOrigins:   corsOrigins(),
 			AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 			AllowedHeaders:   []string{"Content-Type", "Authorization", "X-Requested-With", "X-Inertia", "X-Inertia-Version"},
 			AllowCredentials: true,
@@ -52,4 +55,30 @@ func Middleware(m *velocity.MiddlewareStack) {
 	m.API(
 		middleware.EnsureJSONMiddleware, // Force JSON response content-type (sets response header; not the same as router.ContentTypeJSON which validates request headers)
 	)
+}
+
+// corsOrigins returns the CORS allowlist from the CORS_ALLOWED_ORIGINS env var
+// (comma-separated). It falls back to APP_URL so the default same-origin setup
+// works out of the box, and never returns "*": a wildcard combined with
+// AllowCredentials echoes the request origin back, letting any site make
+// credentialed requests. Set CORS_ALLOWED_ORIGINS to your frontend origin(s)
+// for cross-origin deployments.
+func corsOrigins() []string {
+	if raw := strings.TrimSpace(os.Getenv("CORS_ALLOWED_ORIGINS")); raw != "" {
+		var origins []string
+		for _, o := range strings.Split(raw, ",") {
+			if o = strings.TrimSpace(o); o != "" {
+				origins = append(origins, o)
+			}
+		}
+		if len(origins) > 0 {
+			return origins
+		}
+	}
+	if appURL := strings.TrimSpace(os.Getenv("APP_URL")); appURL != "" {
+		return []string{appURL}
+	}
+	// Nothing configured: return no origins so the framework rejects all
+	// cross-origin requests (fail closed). Same-origin requests are unaffected.
+	return nil
 }
