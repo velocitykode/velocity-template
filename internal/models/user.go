@@ -16,3 +16,8 @@ type User struct {
 func (User) TableName() string {
 	return "users"
 }
+
+// Guarded opts out of velocity deny-by-default mass assignment with an empty
+// denylist (allow-all, no Fillable acronym-zeroing). Name a column here to keep
+// map-based writes from ever reaching it.
+func (User) Guarded() []string { return nil }
