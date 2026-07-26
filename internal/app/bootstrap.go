@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"html/template"
 	"net/http"
 	"os"
@@ -9,8 +10,11 @@ import (
 	"time"
 
 	"{{MODULE_NAME}}/config"
+	"{{MODULE_NAME}}/internal/models"
 
 	"github.com/velocitykode/velocity"
+	"github.com/velocitykode/velocity/auth"
+	"github.com/velocitykode/velocity/auth/providers/ormauth"
 	"github.com/velocitykode/velocity/bond/vite"
 	"github.com/velocitykode/velocity/csrf"
 	"github.com/velocitykode/velocity/view"
@@ -23,15 +27,35 @@ func Configure(reg *velocity.ProviderRegistry) {
 	reg.Add(&AppProvider{})
 }
 
-// AppProvider wires the view engine for this application. CSRF and auth
-// guards are built by the framework from env vars during velocity.New(),
-// so we only need to stand up the Inertia view engine and share the
-// CSRF token into its props.
+// AppProvider wires this application's auth model and view engine. CSRF and
+// the guards themselves are built by the framework during velocity.New();
+// what the framework cannot know is which model authenticates, so Register
+// installs that and Boot stands up the Inertia view engine.
 type AppProvider struct{}
 
-// Register runs before any provider's Boot. Nothing to do here - the
-// framework already built CSRF, Auth, and the session guard.
+// Register runs before any provider's Boot. It installs the application's
+// auth model: velocity.New has already built the guards against the
+// framework's built-in user model, and SetProvider re-points every one of
+// them at ours.
+//
+// This is the swap point. To authenticate a different model - an Admin, say -
+// change the type parameter here and give ormauth that model's column names:
+//
+//	ormauth.New[models.Admin](
+//	    ormauth.WithIdentifierColumn("username"),
+//	    ormauth.WithPasswordColumn("pass_hash"),
+//	)
 func (p *AppProvider) Register(s *velocity.Services) error {
+	provider := ormauth.New[models.User]()
+	if err := provider.Validate(); err != nil {
+		return err
+	}
+
+	manager := auth.FromServices(s)
+	if manager == nil {
+		return errors.New("auth is not configured; set AUTH_GUARD so velocity.New builds the guards")
+	}
+	manager.SetProvider(provider)
 	return nil
 }
 
