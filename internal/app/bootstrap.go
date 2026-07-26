@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"errors"
 	"html/template"
 	"net/http"
 	"os"
@@ -13,8 +12,6 @@ import (
 	"{{MODULE_NAME}}/internal/models"
 
 	"github.com/velocitykode/velocity"
-	"github.com/velocitykode/velocity/auth"
-	"github.com/velocitykode/velocity/auth/providers/ormauth"
 	"github.com/velocitykode/velocity/bond/vite"
 	"github.com/velocitykode/velocity/csrf"
 	"github.com/velocitykode/velocity/view"
@@ -33,30 +30,21 @@ func Configure(reg *velocity.ProviderRegistry) {
 // installs that and Boot stands up the Inertia view engine.
 type AppProvider struct{}
 
-// Register runs before any provider's Boot. It installs the application's
+// Register runs before any provider's Boot. It declares this application's
 // auth model: velocity.New has already built the guards against the
-// framework's built-in user model, and SetProvider re-points every one of
+// framework's built-in user model, and SetAuthModel re-points every one of
 // them at ours.
 //
-// This is the swap point. To authenticate a different model - an Admin, say -
-// change the type parameter here and give ormauth that model's column names:
+// This one line is where authentication chooses its model. To authenticate
+// a different one - an Admin, say - change the type parameter. A model whose
+// columns differ from email/password/remember_token names them:
 //
-//	ormauth.New[models.Admin](
-//	    ormauth.WithIdentifierColumn("username"),
-//	    ormauth.WithPasswordColumn("pass_hash"),
+//	velocity.SetAuthModel[models.Admin](s,
+//	    velocity.WithAuthIdentifierColumn("username"),
+//	    velocity.WithAuthPasswordColumn("pass_hash"),
 //	)
 func (p *AppProvider) Register(s *velocity.Services) error {
-	provider := ormauth.New[models.User]()
-	if err := provider.Validate(); err != nil {
-		return err
-	}
-
-	manager := auth.FromServices(s)
-	if manager == nil {
-		return errors.New("auth is not configured; set AUTH_GUARD so velocity.New builds the guards")
-	}
-	manager.SetProvider(provider)
-	return nil
+	return velocity.SetAuthModel[models.User](s)
 }
 
 // Boot wires the view engine - runs after every provider's Register.

@@ -6,10 +6,10 @@ import (
 
 // User model represents a user in the application.
 //
-// It is also this application's auth model: internal/app/bootstrap.go hands
-// it to ormauth, which maps these columns onto auth.Authenticatable. Swapping
-// authentication onto a different model means pointing that call at a
-// different type.
+// It is also this application's auth model: internal/app/bootstrap.go
+// declares it with velocity.SetAuthModel, which maps these columns onto
+// auth.Authenticatable. Authenticating a different model means changing the
+// type parameter there.
 type User struct {
 	orm.Model[User]
 	Name     string `orm:"column:name;type:varchar(255);not_null" json:"name"`
