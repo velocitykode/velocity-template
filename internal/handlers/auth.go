@@ -12,7 +12,7 @@ import (
 
 // LoginRequest is the form-request schema for POST /login. vform.Form[T]
 // binds the request body into a *LoginRequest, runs Rules(), flashes
-// errors via WithErrors/WithInput, redirects back, and returns
+// errors via FlashErrors/FlashInput, redirects back, and returns
 // router.ErrValidationAborted to short-circuit the handler. The frontend
 // reads the flashed errors/old props on the next render.
 type LoginRequest struct {
@@ -23,14 +23,14 @@ type LoginRequest struct {
 
 func (r *LoginRequest) Rules() validation.Rules {
 	return validation.Rules{
-		"email":    {"required", "email"},
-		"password": {"required"},
+		"email":    {validation.Required(), validation.Email()},
+		"password": {validation.Required()},
 	}
 }
 
-// RegisterRequest schema for POST /register. The unique:users,email rule
-// is enforced by the validation engine against the configured database
-// driver; the confirmed rule pairs password with password_confirmation
+// RegisterRequest schema for POST /register. The Unique("users", "email")
+// rule is enforced by the validation engine against the configured database
+// driver; the Confirmed rule pairs password with password_confirmation
 // without a manual equality check.
 type RegisterRequest struct {
 	Name                 string `json:"name"`
@@ -41,9 +41,9 @@ type RegisterRequest struct {
 
 func (r *RegisterRequest) Rules() validation.Rules {
 	return validation.Rules{
-		"name":     {"required", "max:255"},
-		"email":    {"required", "email", "unique:users,email"},
-		"password": {"required", "min:8", "confirmed"},
+		"name":     {validation.Required(), validation.Max(255)},
+		"email":    {validation.Required(), validation.Email(), validation.Unique("users", "email")},
+		"password": {validation.Required(), validation.Min(8), validation.Confirmed()},
 	}
 }
 
@@ -67,10 +67,10 @@ func AuthLogin(ctx *router.Context) error {
 
 	success, _ := auth.FromContext(ctx).Attempt(ctx.Response, ctx.Request, credentials, req.Remember)
 	if !success {
-		ctx.WithErrors(map[string][]string{
+		ctx.FlashErrors(map[string][]string{
 			"email": {"These credentials do not match our records."},
 		})
-		ctx.WithInput(map[string]any{"email": req.Email})
+		ctx.FlashInput(map[string]any{"email": req.Email})
 		view.Back(ctx)
 		return nil
 	}
@@ -105,8 +105,8 @@ func AuthRegister(ctx *router.Context) error {
 	hashedPassword, err := auth.FromContext(ctx).Hash(req.Password)
 	if err != nil {
 		ctx.Log().Error("Failed to hash password", "error", err)
-		ctx.WithErrors(map[string][]string{"password": {"Failed to process password."}})
-		ctx.WithInput(map[string]any{"name": req.Name, "email": req.Email})
+		ctx.FlashErrors(map[string][]string{"password": {"Failed to process password."}})
+		ctx.FlashInput(map[string]any{"name": req.Name, "email": req.Email})
 		view.Back(ctx)
 		return nil
 	}
@@ -118,8 +118,8 @@ func AuthRegister(ctx *router.Context) error {
 	})
 	if err != nil {
 		ctx.Log().Error("Failed to create user", "error", err)
-		ctx.WithErrors(map[string][]string{"email": {"Failed to create account. Please try again."}})
-		ctx.WithInput(map[string]any{"name": req.Name, "email": req.Email})
+		ctx.FlashErrors(map[string][]string{"email": {"Failed to create account. Please try again."}})
+		ctx.FlashInput(map[string]any{"name": req.Name, "email": req.Email})
 		view.Back(ctx)
 		return nil
 	}

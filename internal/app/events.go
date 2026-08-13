@@ -19,7 +19,7 @@ type listenerFunc func(ctx context.Context, event interface{}) error
 func (f listenerFunc) Handle(ctx context.Context, event interface{}) error {
 	return f(ctx, event)
 }
-func (f listenerFunc) ShouldQueue() bool { return false }
+func (f listenerFunc) Async() bool { return false }
 
 // Events registers event listeners for framework observability.
 // main.go calls Events(v.Log) once at bootstrap and passes the returned

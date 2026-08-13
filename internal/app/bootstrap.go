@@ -17,21 +17,21 @@ import (
 	"github.com/velocitykode/velocity/view"
 )
 
-// Configure registers the app's service providers. main.go passes this
-// to v.Providers(...) - the framework calls Register on every provider
-// during bootstrap, then Boot once Register has finished for all of them.
-func Configure(reg *velocity.ProviderRegistry) {
-	reg.Add(&AppProvider{})
+// Configure registers the app's modules. main.go passes this
+// to v.Modules(...) - the framework calls Init on every module
+// during bootstrap, then Start once Init has finished for all of them.
+func Configure(reg *velocity.ModuleRegistry) {
+	reg.Add(&AppModule{})
 }
 
-// AppProvider wires this application's auth model and view engine. CSRF and
-// the guards themselves are built by the framework during velocity.New();
-// what the framework cannot know is which model authenticates, so Register
-// installs that and Boot stands up the Inertia view engine.
-type AppProvider struct{}
+// AppModule wires this application's auth model and view engine. CSRF and
+// the schemes themselves are built by the framework during velocity.New();
+// what the framework cannot know is which model authenticates, so Init
+// installs that and Start stands up the Inertia view engine.
+type AppModule struct{}
 
-// Register runs before any provider's Boot. It declares this application's
-// auth model: velocity.New has already built the guards against the
+// Init runs before any module's Start. It declares this application's
+// auth model: velocity.New has already built the schemes against the
 // framework's built-in user model, and SetAuthModel re-points every one of
 // them at ours.
 //
@@ -43,16 +43,16 @@ type AppProvider struct{}
 //	    velocity.WithAuthIdentifierColumn("username"),
 //	    velocity.WithAuthPasswordColumn("pass_hash"),
 //	)
-func (p *AppProvider) Register(s *velocity.Services) error {
+func (m *AppModule) Init(s *velocity.Services) error {
 	return velocity.SetAuthModel[models.User](s)
 }
 
-// Boot wires the view engine - runs after every provider's Register.
-func (p *AppProvider) Boot(s *velocity.Services) error {
+// Start wires the view engine - runs after every module's Init.
+func (m *AppModule) Start(s *velocity.Services) error {
 	return bootstrapView(s)
 }
 
-func (p *AppProvider) Shutdown(_ context.Context) error {
+func (m *AppModule) Shutdown(_ context.Context) error {
 	return nil
 }
 

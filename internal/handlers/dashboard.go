@@ -13,8 +13,8 @@ func Dashboard(ctx *router.Context) error {
 	user := auth.FromContext(ctx).User(ctx.Request)
 
 	// Convert user to map for props. The concrete type is *models.User
-	// because internal/app/bootstrap.go installs the auth provider on that
-	// model - change the model there and change this assertion with it.
+	// because internal/app/bootstrap.go declares it via velocity.SetAuthModel -
+	// change the model there and change this assertion with it.
 	userMap := make(map[string]interface{})
 	if authUser, ok := user.(*models.User); ok {
 		userMap["id"] = authUser.ID

@@ -22,9 +22,9 @@ import (
 //   - API:    runs on routes inside r.API(prefix, ...)
 //
 // CSRF lives on Services (framework-built during velocity.New()); the
-// view engine is wired by AppProvider.Boot. The save-at-end session
+// view engine is wired by AppModule.Start. The save-at-end session
 // middleware is auto-installed by velocity.bootstrap (since e7a32a1)
-// when the session guard is active, so the template no longer ships
+// when the session scheme is active, so the template no longer ships
 // its own session wrapper.
 func Middleware(m *velocity.MiddlewareStack) {
 	m.Global(

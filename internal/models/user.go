@@ -27,13 +27,13 @@ func (User) TableName() string {
 	return "users"
 }
 
-// Guarded opts out of velocity deny-by-default mass assignment with an empty
-// denylist (allow-all, no Fillable acronym-zeroing). Name a column here to keep
-// map-based writes from ever reaching it.
+// ProtectedFields opts out of velocity deny-by-default mass assignment with
+// an empty denylist (allow-all). Name a column here to keep map-based writes
+// from ever reaching it.
 //
 // Auth needs remember_token writable: the remember-me token is persisted
 // through the ORM's map-based update path.
-func (User) Guarded() []string { return nil }
+func (User) ProtectedFields() []string { return nil }
 
 // GetAuthIdentifier returns the primary key, used as the session/JWT subject.
 func (u *User) GetAuthIdentifier() interface{} { return u.ID }
