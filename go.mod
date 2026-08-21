@@ -1,8 +1,8 @@
 module {{MODULE_NAME}}
 
-go 1.26.5
+go 1.26.6
 
-require github.com/velocitykode/velocity v0.74.1
+require github.com/velocitykode/velocity v0.75.1
 
 require (
 	filippo.io/edwards25519 v1.1.1 // indirect
