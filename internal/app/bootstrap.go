@@ -10,9 +10,12 @@ import (
 
 	"{{MODULE_NAME}}/config"
 	"{{MODULE_NAME}}/internal/models"
+	"{{MODULE_NAME}}/internal/sessionstore"
 
 	"github.com/velocitykode/velocity"
+	"github.com/velocitykode/velocity/auth"
 	"github.com/velocitykode/velocity/bond/vite"
+	"github.com/velocitykode/velocity/cache"
 	"github.com/velocitykode/velocity/csrf"
 	"github.com/velocitykode/velocity/view"
 )
@@ -47,9 +50,40 @@ func (m *AppModule) Init(s *velocity.Services) error {
 	return velocity.SetAuthModel[models.User](s)
 }
 
-// Start wires the view engine - runs after every module's Init.
+// Start wires the server-side session store and the view engine - runs
+// after every module's Init.
 func (m *AppModule) Start(s *velocity.Services) error {
+	if err := bootstrapSessionStore(s); err != nil {
+		return err
+	}
 	return bootstrapView(s)
+}
+
+// bootstrapSessionStore installs the cache-backed ServerSessionStore on the
+// auth.Manager. A cookie-only session cannot propagate a Logout past the
+// process that handled it, so velocity refuses a production boot when the
+// session scheme has no server store. Backing it with the cache manager puts
+// the records wherever CACHE_DRIVER points - with redis they survive restarts
+// and stay coherent across instances. Returns nil when auth or cache is not
+// wired, which is the JWT-only and test-bootstrap case.
+func bootstrapSessionStore(s *velocity.Services) error {
+	authManager, ok := s.Auth.(*auth.Manager)
+	if !ok || authManager == nil {
+		return nil
+	}
+	cm, ok := s.Cache.(cache.CacheManager)
+	if !ok || cm == nil {
+		return nil
+	}
+	store, err := sessionstore.New(cm)
+	if err != nil {
+		return err
+	}
+	// The manager propagates the store to every scheme implementing
+	// auth.ServerSessionStoreReceiver; the session scheme consults it on
+	// every authenticated request and on Login/Logout.
+	authManager.SetServerSessionStore(store)
+	return nil
 }
 
 func (m *AppModule) Shutdown(_ context.Context) error {
