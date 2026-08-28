@@ -26,7 +26,7 @@ router.on('navigate', (event) => {
     }
 });
 
-createInertiaApp({
+void createInertiaApp({
     progress: {
         color: '#4B5563',
     },
