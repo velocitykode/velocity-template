@@ -8,6 +8,7 @@
         "build": "tsc -b && vp build",
         "preview": "vp preview",
         "check": "vp check && tsc -b",
+        "check:fix": "vp check --fix",
         "lint": "vp lint --type-aware",
         "fmt": "vp fmt"
     },
